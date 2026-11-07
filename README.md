@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/img/hero.png" alt="Bare-metal NMPC: 24.41 ms max solve, 468 recorded laps, 97.0% line coverage, 6 defects found with 1 open" width="100%">
+<img src="docs/img/hero.png" alt="Bare-metal NMPC: 24.41 ms max solve, 468 recorded laps, 96.9% line coverage, 6 defects found with 1 open" width="100%">
 
 [![verify](https://github.com/eungyun-im/baremetal-nmpc-hils-verification/actions/workflows/verify.yml/badge.svg)](https://github.com/eungyun-im/baremetal-nmpc-hils-verification/actions/workflows/verify.yml)
 ![C99](https://img.shields.io/badge/C99-00599C?style=flat-square&logo=c&logoColor=white)
@@ -24,7 +24,7 @@ A nonlinear MPC runs without an OS on an automotive MCU (NXP S32K312, Cortex-M7,
 | Area | Result | Scope |
 |---|---|---|
 | Unit tests | **All 10 test executables pass**, 0 ASan or UBSan errors | Host, 2026-11-07, published code |
-| Coverage | Line **97.0%** (1468/1514), branch **84.9%** (864/1018) | Host, excludes `platform/` and `test/` |
+| Coverage | Line **96.9%** (1482/1529), branch **84.9%** (864/1018) | Host, excludes `platform/` and `test/` |
 | Mutation | QP comparison **27 → 66/81**, arithmetic **99 → 127/127** | 2026-11-05, not rerun after the later QP fix |
 | Compiler warnings | `-Wall -Wextra`: 0, `-Wconversion -Wshadow`: 2 | Core and safety modules |
 | Static analysis | 383 MISRA C:2012 findings over 22 rules, **0 required-rule findings in the safety layer**, 1 real defect found and fixed | cppcheck 2.13 MISRA addon and clang-tidy 18, no compliance claimed |

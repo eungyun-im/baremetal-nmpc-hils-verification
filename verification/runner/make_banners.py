@@ -24,7 +24,7 @@ def capstone(path):
     w, h = 12, 4.1; f, a = canvas(w, h); traces(a, w, 1.9, 2.15)
     a.text(.6, 3.3, "Bare-Metal NMPC", color=INK, fontsize=33, fontweight="bold", va="center")
     a.text(.62, 2.65, "Software quality and HILS verification on an NXP S32K312", color=QUIET, fontsize=13.5, va="center")
-    S = [("24.41 ms", "max solve, 50 ms period"), ("468", "HILS and SILS laps recorded"), ("97.0%", "line coverage, host"), ("6", "defects found, 1 open")]
+    S = [("24.41 ms", "max solve, 50 ms period"), ("468", "HILS and SILS laps recorded"), ("96.9%", "line coverage, host"), ("6", "defects found, 1 open")]
     for i, (v, l) in enumerate(S):
         x = .6 + i * 2.8
         a.add_patch(FancyBboxPatch((x, .5), 2.55, 1.35, boxstyle="round,pad=0,rounding_size=.08", fc="#152033", ec=LINE, lw=.8))
