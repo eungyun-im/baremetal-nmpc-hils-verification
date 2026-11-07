@@ -46,6 +46,17 @@ A nonlinear MPC runs without an OS on an automotive MCU (NXP S32K312, Cortex-M7,
 | HILS | Real board in closed loop with delay, communication, steering and MCU hang faults | Timing and integration defects |
 | Randomized blocks | Mix firmware versions within a session | Separates fix effects from session effects |
 
+## Requirements traceability
+
+[`docs/traceability.md`](docs/traceability.md) links each requirement to its limit, verdict, safety requirement, code and unit tests. `verification/traceability/build_rtm.py` computes the verdicts from `summary.csv` with the same rules as the lap report, and writes `results.json` for other tools to read.
+
+**Current result: 13 pass, 4 fail (AC-04, AC-08, AC-10, driver brake fault). Release ready: no.** It covers 78 judged fault-free laps, a wider set than the 63 laps quoted above, so AC-10 reads 35 of 70 there.
+
+```sh
+python3 verification/traceability/test_build_rtm.py
+python3 verification/traceability/build_rtm.py --check   # fails if results no longer match the data
+```
+
 ## Unit tests and coverage
 
 ![Coverage by module](verification/figures/fig15_coverage.png)

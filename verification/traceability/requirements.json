@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "note": "Links are hand-written. Verdicts are computed by build_rtm.py. A unit_tests entry must name a function that exists, or the build fails.",
+  "requirements": [
+    {
+      "id": "AC-01",
+      "title": "Max round trip per cycle",
+      "limit": "< 45 ms",
+      "kind": "lap",
+      "evidence": "rtt_max",
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-02",
+      "title": "Max MPC solve time (SQP 2, QP 16)",
+      "limit": "<= 29 ms",
+      "kind": "lap",
+      "evidence": "solve_max",
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-03",
+      "title": "Link failures",
+      "limit": "0",
+      "kind": "lap",
+      "evidence": "link_fail",
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-04",
+      "title": "Solver errors (status 2 or higher)",
+      "limit": "0",
+      "kind": "lap",
+      "evidence": "status_other",
+      "safety": [],
+      "unit_tests": [
+        [
+          "test_qp_more.c",
+          "test_invalid_input"
+        ]
+      ]
+    },
+    {
+      "id": "AC-05",
+      "title": "No SAFE_STOP in fault-free laps",
+      "limit": "0",
+      "kind": "lap",
+      "evidence": "safety_stop",
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-06",
+      "title": "Safety state NORMAL ratio",
+      "limit": "100%",
+      "kind": "lap",
+      "evidence": "safety_normal",
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-07",
+      "title": "Max safety cycle",
+      "limit": "<= 10.5 ms",
+      "kind": "lap",
+      "evidence": "sc_gap_max_ms",
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-08",
+      "title": "Ego-related collision messages",
+      "limit": "0",
+      "kind": "lap",
+      "evidence": "collision_ego_msgs",
+      "safety": [
+        "SG-01"
+      ],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-09",
+      "title": "Lap completed",
+      "limit": "all laps",
+      "kind": "lap",
+      "evidence": "finished",
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-10",
+      "title": "Max path error, GPS, 20 s after start, tunnel excluded",
+      "limit": "<= 0.80 m",
+      "kind": "lap",
+      "evidence": "err_gps_max",
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "FLT-blackout",
+      "title": "Command blackout reaches SAFE_STOP",
+      "limit": "SAFE_STOP within 290 ms",
+      "kind": "fault",
+      "fault": "blackout",
+      "safety": [
+        "TSR-03"
+      ],
+      "unit_tests": []
+    },
+    {
+      "id": "FLT-veh_loss",
+      "title": "Vehicle signal loss reaches DEGRADED or higher",
+      "limit": "within 290 ms",
+      "kind": "fault",
+      "fault": "veh_loss",
+      "safety": [
+        "TSR-09"
+      ],
+      "unit_tests": []
+    },
+    {
+      "id": "FLT-bus_off",
+      "title": "Bus-off reaches SAFE_STOP",
+      "limit": "SAFE_STOP, time not judged",
+      "kind": "fault",
+      "fault": "bus_off",
+      "safety": [
+        "TSR-08"
+      ],
+      "unit_tests": []
+    },
+    {
+      "id": "FLT-veh_crc",
+      "title": "Corrupted vehicle frames are dropped without SAFE_STOP",
+      "limit": "no SAFE_STOP",
+      "kind": "fault",
+      "fault": "veh_crc",
+      "safety": [
+        "TSR-07"
+      ],
+      "unit_tests": []
+    },
+    {
+      "id": "FLT-req_crc",
+      "title": "Corrupted request frames keep the safety state",
+      "limit": "no SAFE_STOP",
+      "kind": "fault",
+      "fault": "req_crc",
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "FLT-driver_brake",
+      "title": "Driver brake does not cause SAFE_STOP",
+      "limit": "no SAFE_STOP",
+      "kind": "fault",
+      "fault": "driver_brake",
+      "safety": [
+        "TSR-10"
+      ],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-21",
+      "title": "SILS and HILS mean path error difference",
+      "limit": "within sum of lap SDs",
+      "kind": "equivalence",
+      "safety": [],
+      "unit_tests": []
+    }
+  ],
+  "defects": [
+    {
+      "id": "DEF-1",
+      "title": "QP spent its iteration cap on zero-length steps",
+      "status": "fixed",
+      "verifies": [
+        "AC-04"
+      ],
+      "patch": "defects/qp_zero_step_fix.patch",
+      "unit_tests": [
+        [
+          "test_qp_more.c",
+          "test_zero_step_batch"
+        ],
+        [
+          "test_qp_more.c",
+          "test_stale_last_released"
+        ]
+      ],
+      "conditions": "xover_*"
+    },
+    {
+      "id": "DEF-2",
+      "title": "Safety controller missed bad steering commands",
+      "status": "fixed, steps under 5 deg not detected",
+      "verifies": [],
+      "patch": null,
+      "unit_tests": [
+        [
+          "test_integ_more.c",
+          "test_plaus"
+        ]
+      ],
+      "conditions": "curve_*"
+    },
+    {
+      "id": "DEF-3",
+      "title": "Watchdog was disabled",
+      "status": "fixed",
+      "verifies": [],
+      "patch": null,
+      "unit_tests": [],
+      "conditions": "wdt*"
+    },
+    {
+      "id": "DEF-4",
+      "title": "Steering check can release during a fault and hold steering on recovery",
+      "status": "open",
+      "verifies": [],
+      "patch": null,
+      "unit_tests": [],
+      "conditions": "curve_after_*"
+    }
+  ],
+  "known_gaps": [
+    "No acceptance criterion exists for stack use or for slowly growing steering errors.",
+    "Measured solve time is not a WCET bound.",
+    "AC-20 needs bag files, so it is not recomputed here."
+  ]
+}

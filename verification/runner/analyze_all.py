@@ -47,7 +47,7 @@ ax.set_xticks(x_); ax.set_xticklabels(lab); ax.set(ylabel="M5 60-80 m error (m)"
 kinds = [("blackout", "blackout"), ("veh_loss", "veh_loss")]
 fig, ax = plt.subplots(figsize=(6.4, 3.0)); y_ = 0
 for k, n in kinds:
-    a = [x for x in R if x["condition"].startswith("fault_" + k) and x["reaction_ms"] and x["inject_speed"]]
+    a = [x for x in R if x["condition"].startswith("fault_" + k) and x["valid"] == "1" and x["reaction_ms"] and x["inject_speed"]]
     ax.scatter(vals(a, "reaction_ms"), [y_] * len(a), s=30, color=BLUE, alpha=.7); ax.text(150, y_ + .22, f"{n} (n={len(a)}, max {max(vals(a, 'reaction_ms')):.1f} ms)", color=INK, fontsize=9); y_ += 1
 ax.axvline(290, color=RED, lw=1, ls="--"); ax.text(287, 1.45, "Limit 290 ms", ha="right", color=RED, fontsize=9); ax.set_yticks([]); ax.set(xlabel="Time to safe state after fault (ms)", xlim=(140, 300), ylim=(-.4, 1.7)); ax.spines["left"].set_visible(False); ax.set_title("Communication fault reaction is within the limit (straight road)", loc="left", fontsize=11, color=INK); save(fig, "fig4_faults.png")
 # 5 곡선 조향 결함

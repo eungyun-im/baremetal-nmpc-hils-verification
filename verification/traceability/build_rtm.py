@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+"""Build the requirements traceability matrix from recorded lap data.
+
+Verdicts reuse the rules in verification/runner/report_laps.py. Output has no
+timestamp, so --check can fail when committed results no longer match the data.
+"""
+import argparse, csv, fnmatch, hashlib, json, os, re, statistics, sys
+
+H = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(H, "verification", "runner"))
+from report_laps import fault_failures, lap_failures, num  # noqa: E402
+
+PATHS = dict(req="verification/traceability/requirements.json", summary="verification/results/summary.csv",
+             cfg="sut/bridge/config/acceptance.json", json="verification/traceability/results.json", md="docs/traceability.md")
+
+
+def driving_rows(rows, cfg):
+    return [r for r in rows if r["valid"] == "1" and not r["fault"] and r["condition"] not in cfg["report_only"]]
+
+
+def judge_lap(req, rows, cfg):
+    tag, viol, judged = req["id"], [], 0
+    for r in rows:
+        name = r["condition"]
+        if tag == "AC-02" and name not in cfg["solve_applies_to"]:
+            continue
+        if tag == "AC-10" and num(r, "err_gps_max") is None:
+            continue
+        if tag in ("AC-05", "AC-06", "AC-07") and r["mode"] != "hils":
+            continue
+        judged += 1
+        if any(f.startswith(tag + " ") or f == tag for f in lap_failures(r, cfg, name)):
+            viol.append("%s #%s" % (name, r["attempt"]))
+    return judged, viol
+
+
+def fault_name(row):
+    """The fault column holds JSON with a command, such as "blackout 0.35"."""
+    return json.loads(row["fault"])["cmd"].split()[0] if row["fault"] else ""
+
+
+def judge_fault(req, rows, cfg):
+    rule = cfg["faults"][req["fault"]]
+    use = [r for r in rows if r["valid"] == "1" and fault_name(r) == req["fault"] and r["condition"] not in cfg["report_only"]]
+    return len(use), ["%s #%s" % (r["condition"], r["attempt"]) for r in use if fault_failures(r, rule)]
+
+
+def judge_equivalence(rows, cfg):
+    eq = cfg["equivalence"]
+    v = lambda n: [num(r, "err_gps_mean") for r in rows if r["condition"] == n and r["valid"] == "1" and num(r, "err_gps_mean") is not None]
+    a, b = v(eq["hils"]), v(eq["sils"])
+    if len(a) < 2 or len(b) < 2:
+        return len(a) + len(b), [], None
+    diff, lim = abs(statistics.mean(a) - statistics.mean(b)), statistics.stdev(a) + statistics.stdev(b)
+    return len(a) + len(b), ([] if diff <= lim else ["difference %.3f m over %.3f m" % (diff, lim)]), "difference %.3f m, allowed %.3f m" % (diff, lim)
+
+
+def find_tsr(tsr):
+    hits = []
+    for base, _, files in os.walk(os.path.join(H, "sut")):
+        if os.sep + "test" in base:
+            continue
+        for f in files:
+            if f.endswith((".c", ".h", ".cpp")) and re.search(re.escape(tsr) + r"\b", open(os.path.join(base, f), errors="ignore").read()):
+                hits.append(os.path.relpath(os.path.join(base, f), H))
+    return sorted(hits)
+
+
+def check_test(link):
+    path = os.path.join(H, "sut", "test", link[0])
+    if not re.search(r"\b%s\s*\(" % re.escape(link[1]), open(path, errors="ignore").read()):
+        raise SystemExit("missing test %s in %s" % (link[1], link[0]))
+    return "%s:%s" % tuple(link)
+
+
+def build():
+    req = json.load(open(os.path.join(H, PATHS["req"]))); cfg = json.load(open(os.path.join(H, PATHS["cfg"])))
+    raw = open(os.path.join(H, PATHS["summary"]), "rb").read()
+    rows = list(csv.DictReader(open(os.path.join(H, PATHS["summary"]), newline="")))
+    drive, out = driving_rows(rows, cfg), []
+    for r in req["requirements"]:
+        note = None
+        if r["kind"] == "lap":
+            n, viol = judge_lap(r, drive, cfg)
+        elif r["kind"] == "fault":
+            n, viol = judge_fault(r, rows, cfg)
+        else:
+            n, viol, note = judge_equivalence(rows, cfg)
+        status = "NOT_JUDGED" if n == 0 else ("FAIL" if viol else "PASS")
+        out.append(dict(id=r["id"], title=r["title"], limit=r["limit"], status=status, judged=n, violations=len(viol), first_violations=viol[:5], note=note,
+                        safety=[dict(id=t, code=find_tsr(t)) for t in r["safety"]], unit_tests=[check_test(t) for t in r["unit_tests"]]))
+    for d in req["defects"]:
+        d["unit_tests"] = [check_test(t) for t in d["unit_tests"]]
+        d["hils_laps"] = sum(fnmatch.fnmatch(x["condition"], d["conditions"]) for x in rows)
+    cnt = {s: sum(o["status"] == s for o in out) for s in ("PASS", "FAIL", "NOT_JUDGED")}
+    return dict(schema_version=1, inputs=dict(summary_sha256=hashlib.sha256(raw).hexdigest(), rows=len(rows), valid=sum(x["valid"] == "1" for x in rows), driving_judged=len(drive)),
+                summary=cnt, release_ready=cnt["FAIL"] == 0 and cnt["NOT_JUDGED"] == 0, requirements=out, defects=req["defects"], known_gaps=req["known_gaps"])
+
+
+def markdown(R):
+    i = R["inputs"]; c = R["summary"]
+    L = ["# Requirements Traceability", "", "Generated by `verification/traceability/build_rtm.py`. Do not edit by hand. Unit test links are written by hand and checked to exist; they do not prove full coverage of the requirement.", "",
+         "**%d pass, %d fail, %d not judged.** Release ready: **%s**." % (c["PASS"], c["FAIL"], c["NOT_JUDGED"], "yes" if R["release_ready"] else "no"), "",
+         "Data: %d rows, %d valid, %d valid fault-free laps in judged conditions. Summary SHA-256 `%s`." % (i["rows"], i["valid"], i["driving_judged"], i["summary_sha256"][:12]), "",
+         "## Requirements", "", "| ID | Requirement | Limit | Status | Judged | Violations | Safety req | Code | Unit test |", "|---|---|---|---|---:|---:|---|---|---|"]
+    for o in R["requirements"]:
+        tsr = ", ".join(s["id"] for s in o["safety"]) or "-"
+        code = "<br>".join("`%s`" % p.replace("sut/", "") for s in o["safety"] for p in s["code"]) or "-"
+        ut = "<br>".join("`%s`" % t for t in o["unit_tests"]) or "**none linked**"
+        L.append("| %s | %s | %s | %s | %d | %d | %s | %s | %s |" % (o["id"], o["title"], o["limit"].replace("<=", "≤"), "**FAIL**" if o["status"] == "FAIL" else o["status"], o["judged"], o["violations"], tsr, code, ut))
+    L += ["", "## Violations (first five each)", ""] + ["- **%s:** %s" % (o["id"], ", ".join(o["first_violations"])) for o in R["requirements"] if o["violations"]]
+    L += ["", "## Defects", "", "| ID | Defect | Status | Unit test | HILS laps in matching conditions |", "|---|---|---|---|---:|"]
+    for d in R["defects"]:
+        L.append("| %s | %s | %s | %s | %d |" % (d["id"], d["title"], d["status"], "<br>".join("`%s`" % t for t in d["unit_tests"]) or "**none linked**", d["hils_laps"]))
+    n = sum(not o["unit_tests"] for o in R["requirements"])
+    L += ["", "## Known gaps", "", "- %d of %d requirements have no linked unit test. They are verified by HILS only." % (n, len(R["requirements"]))] + ["- " + g for g in R["known_gaps"]] + [""]
+    return "\n".join(L)
+
+
+def main():
+    ap = argparse.ArgumentParser(); ap.add_argument("--check", action="store_true", help="fail if committed outputs differ"); a = ap.parse_args()
+    R = build(); js = json.dumps(R, indent=2, ensure_ascii=False) + "\n"; md = markdown(R)
+    if a.check:
+        ok = open(os.path.join(H, PATHS["json"])).read() == js and open(os.path.join(H, PATHS["md"])).read() == md
+        print("traceability up to date" if ok else "traceability out of date"); sys.exit(0 if ok else 1)
+    open(os.path.join(H, PATHS["json"]), "w").write(js); open(os.path.join(H, PATHS["md"]), "w").write(md); print(R["summary"], R["inputs"])
+
+
+if __name__ == "__main__":
+    main()

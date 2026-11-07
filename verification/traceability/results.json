@@ -1,0 +1,339 @@
+{
+  "schema_version": 1,
+  "inputs": {
+    "summary_sha256": "445d485fd39887c92c04f7d9f2a6f4776e93f5d89de9967c7b818ebe145fe515",
+    "rows": 468,
+    "valid": 397,
+    "driving_judged": 78
+  },
+  "summary": {
+    "PASS": 13,
+    "FAIL": 4,
+    "NOT_JUDGED": 0
+  },
+  "release_ready": false,
+  "requirements": [
+    {
+      "id": "AC-01",
+      "title": "Max round trip per cycle",
+      "limit": "< 45 ms",
+      "status": "PASS",
+      "judged": 78,
+      "violations": 0,
+      "first_violations": [],
+      "note": null,
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-02",
+      "title": "Max MPC solve time (SQP 2, QP 16)",
+      "limit": "<= 29 ms",
+      "status": "PASS",
+      "judged": 38,
+      "violations": 0,
+      "first_violations": [],
+      "note": null,
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-03",
+      "title": "Link failures",
+      "limit": "0",
+      "status": "PASS",
+      "judged": 78,
+      "violations": 0,
+      "first_violations": [],
+      "note": null,
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-04",
+      "title": "Solver errors (status 2 or higher)",
+      "limit": "0",
+      "status": "FAIL",
+      "judged": 78,
+      "violations": 1,
+      "first_violations": [
+        "delay100_on #4"
+      ],
+      "note": null,
+      "safety": [],
+      "unit_tests": [
+        "test_qp_more.c:test_invalid_input"
+      ]
+    },
+    {
+      "id": "AC-05",
+      "title": "No SAFE_STOP in fault-free laps",
+      "limit": "0",
+      "status": "PASS",
+      "judged": 63,
+      "violations": 0,
+      "first_violations": [],
+      "note": null,
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-06",
+      "title": "Safety state NORMAL ratio",
+      "limit": "100%",
+      "status": "PASS",
+      "judged": 63,
+      "violations": 0,
+      "first_violations": [],
+      "note": null,
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-07",
+      "title": "Max safety cycle",
+      "limit": "<= 10.5 ms",
+      "status": "PASS",
+      "judged": 63,
+      "violations": 0,
+      "first_violations": [],
+      "note": null,
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-08",
+      "title": "Ego-related collision messages",
+      "limit": "0",
+      "status": "FAIL",
+      "judged": 78,
+      "violations": 2,
+      "first_violations": [
+        "delay75_on #4",
+        "hils_base_recheck #4"
+      ],
+      "note": null,
+      "safety": [
+        {
+          "id": "SG-01",
+          "code": []
+        }
+      ],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-09",
+      "title": "Lap completed",
+      "limit": "all laps",
+      "status": "PASS",
+      "judged": 78,
+      "violations": 0,
+      "first_violations": [],
+      "note": null,
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-10",
+      "title": "Max path error, GPS, 20 s after start, tunnel excluded",
+      "limit": "<= 0.80 m",
+      "status": "FAIL",
+      "judged": 70,
+      "violations": 35,
+      "first_violations": [
+        "sils_base #6",
+        "hils_base #7",
+        "hils_base #8",
+        "sils_base #7",
+        "sils_base #8"
+      ],
+      "note": null,
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "FLT-blackout",
+      "title": "Command blackout reaches SAFE_STOP",
+      "limit": "SAFE_STOP within 290 ms",
+      "status": "PASS",
+      "judged": 10,
+      "violations": 0,
+      "first_violations": [],
+      "note": null,
+      "safety": [
+        {
+          "id": "TSR-03",
+          "code": [
+            "sut/integ/bmpc_safety.c",
+            "sut/third_party/kuuve_safety/safety_ctrl.c",
+            "sut/third_party/kuuve_safety/safety_ctrl.h"
+          ]
+        }
+      ],
+      "unit_tests": []
+    },
+    {
+      "id": "FLT-veh_loss",
+      "title": "Vehicle signal loss reaches DEGRADED or higher",
+      "limit": "within 290 ms",
+      "status": "PASS",
+      "judged": 10,
+      "violations": 0,
+      "first_violations": [],
+      "note": null,
+      "safety": [
+        {
+          "id": "TSR-09",
+          "code": [
+            "sut/platform/s32k312/main.c",
+            "sut/third_party/kuuve_safety/safety_ctrl.c",
+            "sut/third_party/kuuve_safety/safety_ctrl.h"
+          ]
+        }
+      ],
+      "unit_tests": []
+    },
+    {
+      "id": "FLT-bus_off",
+      "title": "Bus-off reaches SAFE_STOP",
+      "limit": "SAFE_STOP, time not judged",
+      "status": "PASS",
+      "judged": 13,
+      "violations": 0,
+      "first_violations": [],
+      "note": null,
+      "safety": [
+        {
+          "id": "TSR-08",
+          "code": [
+            "sut/bridge/src/bridge_node.cpp",
+            "sut/platform/s32k312/main.c",
+            "sut/third_party/kuuve_safety/safety_ctrl.c",
+            "sut/third_party/kuuve_safety/safety_ctrl.h"
+          ]
+        }
+      ],
+      "unit_tests": []
+    },
+    {
+      "id": "FLT-veh_crc",
+      "title": "Corrupted vehicle frames are dropped without SAFE_STOP",
+      "limit": "no SAFE_STOP",
+      "status": "PASS",
+      "judged": 10,
+      "violations": 0,
+      "first_violations": [],
+      "note": null,
+      "safety": [
+        {
+          "id": "TSR-07",
+          "code": [
+            "sut/third_party/kuuve_safety/safety_ctrl.h"
+          ]
+        }
+      ],
+      "unit_tests": []
+    },
+    {
+      "id": "FLT-req_crc",
+      "title": "Corrupted request frames keep the safety state",
+      "limit": "no SAFE_STOP",
+      "status": "PASS",
+      "judged": 10,
+      "violations": 0,
+      "first_violations": [],
+      "note": null,
+      "safety": [],
+      "unit_tests": []
+    },
+    {
+      "id": "FLT-driver_brake",
+      "title": "Driver brake does not cause SAFE_STOP",
+      "limit": "no SAFE_STOP",
+      "status": "FAIL",
+      "judged": 10,
+      "violations": 1,
+      "first_violations": [
+        "fault_driver_brake_slow #2"
+      ],
+      "note": null,
+      "safety": [
+        {
+          "id": "TSR-10",
+          "code": [
+            "sut/bridge/src/bridge_node.cpp",
+            "sut/third_party/kuuve_safety/safety_ctrl.c",
+            "sut/third_party/kuuve_safety/safety_ctrl.h"
+          ]
+        }
+      ],
+      "unit_tests": []
+    },
+    {
+      "id": "AC-21",
+      "title": "SILS and HILS mean path error difference",
+      "limit": "within sum of lap SDs",
+      "status": "PASS",
+      "judged": 12,
+      "violations": 0,
+      "first_violations": [],
+      "note": "difference 0.011 m, allowed 0.105 m",
+      "safety": [],
+      "unit_tests": []
+    }
+  ],
+  "defects": [
+    {
+      "id": "DEF-1",
+      "title": "QP spent its iteration cap on zero-length steps",
+      "status": "fixed",
+      "verifies": [
+        "AC-04"
+      ],
+      "patch": "defects/qp_zero_step_fix.patch",
+      "unit_tests": [
+        "test_qp_more.c:test_zero_step_batch",
+        "test_qp_more.c:test_stale_last_released"
+      ],
+      "conditions": "xover_*",
+      "hils_laps": 53
+    },
+    {
+      "id": "DEF-2",
+      "title": "Safety controller missed bad steering commands",
+      "status": "fixed, steps under 5 deg not detected",
+      "verifies": [],
+      "patch": null,
+      "unit_tests": [
+        "test_integ_more.c:test_plaus"
+      ],
+      "conditions": "curve_*",
+      "hils_laps": 29
+    },
+    {
+      "id": "DEF-3",
+      "title": "Watchdog was disabled",
+      "status": "fixed",
+      "verifies": [],
+      "patch": null,
+      "unit_tests": [],
+      "conditions": "wdt*",
+      "hils_laps": 6
+    },
+    {
+      "id": "DEF-4",
+      "title": "Steering check can release during a fault and hold steering on recovery",
+      "status": "open",
+      "verifies": [],
+      "patch": null,
+      "unit_tests": [],
+      "conditions": "curve_after_*",
+      "hils_laps": 17
+    }
+  ],
+  "known_gaps": [
+    "No acceptance criterion exists for stack use or for slowly growing steering errors.",
+    "Measured solve time is not a WCET bound.",
+    "AC-20 needs bag files, so it is not recomputed here."
+  ]
+}
