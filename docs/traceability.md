@@ -20,12 +20,12 @@ Data: 468 rows, 397 valid, 78 valid fault-free laps in judged conditions. Summar
 | AC-08 | Ego-related collision messages | 0 | **FAIL** | 78 | 2 | SG-01 | - | **none linked** |
 | AC-09 | Lap completed | all laps | PASS | 78 | 0 | - | - | **none linked** |
 | AC-10 | Max path error, GPS, 20 s after start, tunnel excluded | ≤ 0.80 m | **FAIL** | 70 | 35 | - | - | **none linked** |
-| FLT-blackout | Command blackout reaches SAFE_STOP | SAFE_STOP within 290 ms | PASS | 10 | 0 | TSR-03 | `integ/bmpc_safety.c`<br>`third_party/kuuve_safety/safety_ctrl.c`<br>`third_party/kuuve_safety/safety_ctrl.h` | **none linked** |
-| FLT-veh_loss | Vehicle signal loss reaches DEGRADED or higher | within 290 ms | PASS | 10 | 0 | TSR-09 | `platform/s32k312/main.c`<br>`third_party/kuuve_safety/safety_ctrl.c`<br>`third_party/kuuve_safety/safety_ctrl.h` | **none linked** |
-| FLT-bus_off | Bus-off reaches SAFE_STOP | SAFE_STOP, time not judged | PASS | 13 | 0 | TSR-08 | `bridge/src/bridge_node.cpp`<br>`platform/s32k312/main.c`<br>`third_party/kuuve_safety/safety_ctrl.c`<br>`third_party/kuuve_safety/safety_ctrl.h` | **none linked** |
-| FLT-veh_crc | Corrupted vehicle frames are dropped without SAFE_STOP | no SAFE_STOP | PASS | 10 | 0 | TSR-07 | `third_party/kuuve_safety/safety_ctrl.h` | **none linked** |
+| FLT-blackout | Command blackout reaches SAFE_STOP | SAFE_STOP within 290 ms | PASS | 10 | 0 | TSR-03 | `integ/bmpc_safety.c`<br>`third_party/kuuve_safety/safety_ctrl.c`<br>`third_party/kuuve_safety/safety_ctrl.h` | `test_safety_reqs.c:test_tsr03_command_timeout` |
+| FLT-veh_loss | Vehicle signal loss reaches DEGRADED or higher | within 290 ms | PASS | 10 | 0 | TSR-09 | `platform/s32k312/main.c`<br>`third_party/kuuve_safety/safety_ctrl.c`<br>`third_party/kuuve_safety/safety_ctrl.h` | `test_safety_reqs.c:test_tsr09_speed_loss` |
+| FLT-bus_off | Bus-off reaches SAFE_STOP | SAFE_STOP, time not judged | PASS | 13 | 0 | TSR-08 | `bridge/src/bridge_node.cpp`<br>`platform/s32k312/main.c`<br>`third_party/kuuve_safety/safety_ctrl.c`<br>`third_party/kuuve_safety/safety_ctrl.h` | `test_safety_reqs.c:test_tsr08_bus_off` |
+| FLT-veh_crc | Corrupted vehicle frames are dropped without SAFE_STOP | no SAFE_STOP | PASS | 10 | 0 | TSR-07 | `third_party/kuuve_safety/safety_ctrl.h` | `test_safety_reqs.c:test_tsr07_corrupted_frames` |
 | FLT-req_crc | Corrupted request frames keep the safety state | no SAFE_STOP | PASS | 10 | 0 | - | - | **none linked** |
-| FLT-driver_brake | Driver brake does not cause SAFE_STOP | no SAFE_STOP | **FAIL** | 10 | 1 | TSR-10 | `bridge/src/bridge_node.cpp`<br>`third_party/kuuve_safety/safety_ctrl.c`<br>`third_party/kuuve_safety/safety_ctrl.h` | **none linked** |
+| FLT-driver_brake | Driver brake does not cause SAFE_STOP | no SAFE_STOP | **FAIL** | 10 | 1 | TSR-10 | `bridge/src/bridge_node.cpp`<br>`third_party/kuuve_safety/safety_ctrl.c`<br>`third_party/kuuve_safety/safety_ctrl.h` | `test_safety_reqs.c:test_tsr10_driver_brake` |
 | AC-21 | SILS and HILS mean path error difference | within sum of lap SDs | PASS | 12 | 0 | - | - | **none linked** |
 
 ## Violations (first five each)
@@ -46,7 +46,9 @@ Data: 468 rows, 397 valid, 78 valid fault-free laps in judged conditions. Summar
 
 ## Known gaps
 
-- 16 of 17 requirements have no linked unit test. They are verified by HILS only.
+- 11 of 17 requirements have no linked unit test. They are verified by HILS only.
+- AC-01 to AC-03, AC-05 to AC-10 and AC-21 are closed-loop measurements on the full system. A unit test cannot verify them, so they stay HILS-only.
+- FLT-req_crc concerns the MPC request path in the bridge, which has no unit test.
 - No acceptance criterion exists for stack use or for slowly growing steering errors.
 - Measured solve time is not a WCET bound.
 - AC-20 needs bag files, so it is not recomputed here.

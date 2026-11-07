@@ -170,7 +170,9 @@
           ]
         }
       ],
-      "unit_tests": []
+      "unit_tests": [
+        "test_safety_reqs.c:test_tsr03_command_timeout"
+      ]
     },
     {
       "id": "FLT-veh_loss",
@@ -191,7 +193,9 @@
           ]
         }
       ],
-      "unit_tests": []
+      "unit_tests": [
+        "test_safety_reqs.c:test_tsr09_speed_loss"
+      ]
     },
     {
       "id": "FLT-bus_off",
@@ -213,7 +217,9 @@
           ]
         }
       ],
-      "unit_tests": []
+      "unit_tests": [
+        "test_safety_reqs.c:test_tsr08_bus_off"
+      ]
     },
     {
       "id": "FLT-veh_crc",
@@ -232,7 +238,9 @@
           ]
         }
       ],
-      "unit_tests": []
+      "unit_tests": [
+        "test_safety_reqs.c:test_tsr07_corrupted_frames"
+      ]
     },
     {
       "id": "FLT-req_crc",
@@ -267,7 +275,9 @@
           ]
         }
       ],
-      "unit_tests": []
+      "unit_tests": [
+        "test_safety_reqs.c:test_tsr10_driver_brake"
+      ]
     },
     {
       "id": "AC-21",
@@ -332,6 +342,8 @@
     }
   ],
   "known_gaps": [
+    "AC-01 to AC-03, AC-05 to AC-10 and AC-21 are closed-loop measurements on the full system. A unit test cannot verify them, so they stay HILS-only.",
+    "FLT-req_crc concerns the MPC request path in the bridge, which has no unit test.",
     "No acceptance criterion exists for stack use or for slowly growing steering errors.",
     "Measured solve time is not a WCET bound.",
     "AC-20 needs bag files, so it is not recomputed here."

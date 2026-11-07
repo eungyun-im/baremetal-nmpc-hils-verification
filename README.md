@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/img/hero.png" alt="Bare-metal NMPC: 24.41 ms max solve, 468 recorded laps, 96.2% line coverage, 6 defects found with 1 open" width="100%">
+<img src="docs/img/hero.png" alt="Bare-metal NMPC: 24.41 ms max solve, 468 recorded laps, 97.0% line coverage, 6 defects found with 1 open" width="100%">
 
 ![C99](https://img.shields.io/badge/C99-00599C?style=flat-square&logo=c&logoColor=white)
 ![NXP S32K312](https://img.shields.io/badge/NXP_S32K312-000000?style=flat-square&logoColor=white)
@@ -22,8 +22,8 @@ A nonlinear MPC runs without an OS on an automotive MCU (NXP S32K312, Cortex-M7,
 
 | Area | Result | Scope |
 |---|---|---|
-| Unit tests | **All 7 test executables pass**, 0 ASan or UBSan errors | Host, 2026-11-07, published code |
-| Coverage | Line **96.2%** (1457/1514), branch **83.5%** (850/1018) | Host, excludes `platform/` and `test/` |
+| Unit tests | **All 8 test executables pass**, 0 ASan or UBSan errors | Host, 2026-11-07, published code |
+| Coverage | Line **97.0%** (1468/1514), branch **84.9%** (864/1018) | Host, excludes `platform/` and `test/` |
 | Mutation | QP comparison **27 → 66/81**, arithmetic **99 → 127/127** | 2026-11-05, not rerun after the later QP fix |
 | Compiler warnings | `-Wall -Wextra`: 0, `-Wconversion -Wshadow`: 2 | Core and safety modules |
 | Real-time | Max solve **24.41 ms**, max round trip **38.88 ms**, 50 ms period | Real board, measured, not a WCET bound |
@@ -39,6 +39,7 @@ A nonlinear MPC runs without an OS on an automotive MCU (NXP S32K312, Cortex-M7,
 | Layer | Method | What it can find |
 |---|---|---|
 | Unit tests | Separate double, float and safety builds | Logic and numerical errors |
+| Requirement-based tests | `test_safety_reqs.c` checks each fault reaction against the acceptance criteria, not the code | Behavior that differs from the requirement |
 | Coverage | gcovr line and branch | Code that never ran |
 | Mutation | Change comparison and arithmetic operators, check that tests fail | Weak tests |
 | Injected defects | 136 hand-written defects in the QP solver | Gaps coverage cannot show |
@@ -66,7 +67,7 @@ sut/run_tests.sh   # unit tests, no board or ROS needed
 sut/quality.sh     # coverage and sanitizers, needs gcovr
 ```
 
-Weak spots are shown as measured: `safety_ctrl.c` has 62.2% branch coverage and `bmpc_config.c` has 65.9%. Data is in `verification/results/coverage_summary.json`.
+Weak spots are shown as measured: `safety_ctrl.c` has 71.6% branch coverage and `bmpc_config.c` has 65.9%. Data is in `verification/results/coverage_summary.json`.
 
 **A measurement mistake was also found.** An early coverage baseline counted only the last test, because rebuilding in one folder overwrote the `.gcno` files. Each test now has its own build folder.
 
