@@ -30,7 +30,7 @@ static int bs_can_send(void *ctx, const bmpc_can_frame_t *f);
 void bs_init(bs_app_t *a, const bs_cfg_t *cfg, const sc_config_t *scfg, const bmpc_hal_t *hal)
 {
   bmpc_hal_t inner;
-  memset(a, 0, sizeof(*a));
+  (void)memset(a, 0, sizeof(*a));
   a->cfg = *cfg;
   a->hal = *hal;
   inner.now_us = hal->now_us;
@@ -46,9 +46,15 @@ static void put_i16_x100(uint8_t *p, float v)
 {
   float r = v * 100.0f;
   int16_t q;
-  if (!(r == r)) r = 0.0f;
-  if (r > 32767.0f) r = 32767.0f;
-  else if (r < -32768.0f) r = -32768.0f;
+  if (!(r == r)) {
+    r = 0.0f;
+  }
+  if (r > 32767.0f) {
+    r = 32767.0f;
+  } else if (r < -32768.0f) {
+    r = -32768.0f;
+  } else {
+  }
   q = (int16_t)((r >= 0.0f) ? (r + 0.5f) : (r - 0.5f));
   p[0] = (uint8_t)((uint16_t)q & 0xFFu);
   p[1] = (uint8_t)(((uint16_t)q >> 8) & 0xFFu);
@@ -57,8 +63,8 @@ static void put_i16_x100(uint8_t *p, float v)
 void bs_make_ctrl_frame(const bs_cfg_t *cfg, const bmpc_response_t *r, uint8_t d[8])
 {
   const float steer_deg = (float)r->steer_cmd * RAD2DEG_F; /* 응답 steer_cmd 는 /ctrl_cmd 와 같은 부호 */
-  const float accel = (float)r->accel * cfg->accel_gain - (float)r->brake * cfg->brake_gain;
-  memset(d, 0, 8);
+  const float accel = ((float)r->accel * cfg->accel_gain) - ((float)r->brake * cfg->brake_gain);
+  (void)memset(d, 0, 8u);
   put_i16_x100(&d[0], steer_deg);         /* SteerCmd 0|16 0.01 deg */
   put_i16_x100(&d[2], accel);             /* AccelCmd 16|16 0.01 m/s2 */
   d[6] = (uint8_t)(r->seq & 0x0Fu);       /* CtrlAlive 48|4 = 요청 seq 하위 4 비트 (PC 가 짝짓는다) */
@@ -72,19 +78,24 @@ void bs_make_ctrl_frame(const bs_cfg_t *cfg, const bmpc_response_t *r, uint8_t d
 static void bs_plaus_brake(bmpc_response_t *r)
 {
   r->accel = (bmpc_real)0;
-  if ((float)r->brake < BS_PLAUS_BRAKE) r->brake = (bmpc_real)BS_PLAUS_BRAKE;
+  if ((float)r->brake < BS_PLAUS_BRAKE) {
+    r->brake = (bmpc_real)BS_PLAUS_BRAKE;
+  }
 }
 
 static void bs_plaus_apply(bs_app_t *a, bmpc_response_t *r)
 {
   const int64_t now = a->hal.now_us(a->hal.ctx);
-  const float step = BS_PLAUS_STEP_DEG / RAD2DEG_F, ramp = BS_PLAUS_RAMP_DEG / RAD2DEG_F;
+  const float step = BS_PLAUS_STEP_DEG / RAD2DEG_F;
+  const float ramp = BS_PLAUS_RAMP_DEG / RAD2DEG_F;
   const float cmd = (float)r->steer_cmd;
   const int64_t last_us = a->plaus_last_us;
   float diff;
   a->plaus_last_us = now;
-  if (a->plaus_reset_req || !a->plaus_have || now - last_us > BS_PLAUS_GAP_US) {
-    if (a->plaus_reset_req) a->n_plaus = 0u;
+  if ((a->plaus_reset_req != 0) || (a->plaus_have == 0) || ((now - last_us) > BS_PLAUS_GAP_US)) {
+    if (a->plaus_reset_req != 0) {
+      a->n_plaus = 0u;
+    }
     a->plaus_reset_req = 0;
     a->plaus_have = 1;
     a->plaus_returning = 0;
@@ -94,7 +105,7 @@ static void bs_plaus_apply(bs_app_t *a, bmpc_response_t *r)
   }
   diff = cmd - a->plaus_last;
   if (now < a->plaus_until_us) {
-    if (diff <= step && diff >= -step) {
+    if ((diff <= step) && (diff >= -step)) {
       if (++a->plaus_ok >= BS_PLAUS_OK_CMDS) {
         a->plaus_until_us = 0;
         a->plaus_returning = 0;
@@ -108,10 +119,12 @@ static void bs_plaus_apply(bs_app_t *a, bmpc_response_t *r)
     bs_plaus_brake(r);
     return;
   }
-  if (a->plaus_returning) {
-    if (diff > ramp) a->plaus_last += ramp;
-    else if (diff < -ramp) a->plaus_last -= ramp;
-    else {
+  if (a->plaus_returning != 0) {
+    if (diff > ramp) {
+      a->plaus_last += ramp;
+    } else if (diff < -ramp) {
+      a->plaus_last -= ramp;
+    } else {
       a->plaus_last = cmd;
       a->plaus_returning = 0;
       return;
@@ -120,7 +133,7 @@ static void bs_plaus_apply(bs_app_t *a, bmpc_response_t *r)
     bs_plaus_brake(r);
     return;
   }
-  if (diff <= step && diff >= -step) {
+  if ((diff <= step) && (diff >= -step)) {
     a->plaus_last = cmd;
     return;
   }
@@ -144,7 +157,9 @@ static void bs_hook_apply(bs_app_t *a, bmpc_response_t *r)
     a->hook_until_us = now + (int64_t)a->hook_ms * 1000;
     ++a->n_hook;
   }
-  if (a->hook_active != BS_HOOK_OFF && now >= a->hook_until_us) a->hook_active = BS_HOOK_OFF;
+  if ((a->hook_active != BS_HOOK_OFF) && (now >= a->hook_until_us)) {
+    a->hook_active = BS_HOOK_OFF;
+  }
   if (a->hook_active == BS_HOOK_OFFSET) {
     r->steer_cmd = (bmpc_real)(steer + (float)a->hook_centideg * 0.01f / RAD2DEG_F);
   } else if (a->hook_active == BS_HOOK_HOLD) {
@@ -159,16 +174,18 @@ static int bs_can_send(void *ctx, const bmpc_can_frame_t *f)
 {
   bs_app_t *a = (bs_app_t *)ctx;
   const int rc = a->hal.can_send(a->hal.ctx, f);
-  if (f->id >= BMPC_ID_RESP_BASE && f->id < BMPC_ID_RESP_BASE + BMPC_RESP_FRAMES) {
+  if ((f->id >= BMPC_ID_RESP_BASE) && (f->id < (BMPC_ID_RESP_BASE + (uint32_t)BMPC_RESP_FRAMES))) {
     const unsigned i = (unsigned)(f->id - BMPC_ID_RESP_BASE);
-    if (i == 0) a->resp_mask = 0;
+    if (i == 0u) {
+      a->resp_mask = 0;
+    }
     a->resp[i] = *f;
     a->resp_mask |= (uint8_t)(1u << i);
     if (a->resp_mask == (uint8_t)((1u << BMPC_RESP_FRAMES) - 1u)) {
       bmpc_response_t r;
       a->resp_mask = 0;
       /* 수신 오류·설정 전 응답에는 명령이 없다. 그 밖(풀이 실패 포함)은 controller 가 유지한 명령이 들어 있다 */
-      if (bmpc_decode_response(a->resp, &r) == 0 && r.status != BMPC_ERR_RX && r.status != BMPC_ERR_NOT_CONFIGURED) {
+      if ((bmpc_decode_response(a->resp, &r) == 0) && (r.status != BMPC_ERR_RX) && (r.status != BMPC_ERR_NOT_CONFIGURED)) {
 #ifdef BS_TEST_HOOK
         bs_hook_apply(a, &r);
 #endif
@@ -185,8 +202,8 @@ static int bs_can_send(void *ctx, const bmpc_can_frame_t *f)
 
 int bs_is_safety_frame(uint32_t id)
 {
-  return id == BS_ID_ESC_SPEED || id == BS_ID_SAS_STEER || id == BS_ID_VCU_PEDAL || id == BS_ID_ACU_IMU ||
-         id == BS_ID_BENCH_RESET;
+  return (id == BS_ID_ESC_SPEED) || (id == BS_ID_SAS_STEER) || (id == BS_ID_VCU_PEDAL) || (id == BS_ID_ACU_IMU) ||
+         (id == BS_ID_BENCH_RESET);
 }
 
 void bs_on_safety_frame(bs_app_t *a, const bmpc_can_frame_t *f, uint32_t now_ms)
@@ -201,7 +218,7 @@ void bs_on_safety_frame(bs_app_t *a, const bmpc_can_frame_t *f, uint32_t now_ms)
       return;
     }
 #endif
-    if (f->dlc >= 2u && f->data[0] == 0x5Au && f->data[1] == 0xA5u) {
+    if ((f->dlc >= 2u) && (f->data[0] == 0x5Au) && (f->data[1] == 0xA5u)) {
       sc_reset(&a->sc); /* 시험대 전용: SAFE_STOP 래치 해제 */
 #ifdef BS_PLAUS
       a->plaus_reset_req = 1;
@@ -211,11 +228,17 @@ void bs_on_safety_frame(bs_app_t *a, const bmpc_can_frame_t *f, uint32_t now_ms)
     return;
   }
   if (f->dlc != 8u) return; /* 차량 CAN 은 모두 8 바이트 (vehicle.dbc) */
-  if (f->id == BS_ID_ESC_SPEED) sc_on_esc_frame(&a->sc, f->data, now_ms);
-  else if (f->id == BS_ID_ACU_IMU) sc_on_imu_frame(&a->sc, f->data, now_ms);
-  else if (f->id == BS_ID_VCU_PEDAL) sc_on_pedal_frame(&a->sc, f->data, now_ms);
-  else if (f->id == BS_ID_SAS_STEER) sc_on_sas_frame(&a->sc, f->data, now_ms);
-  else return;
+  if (f->id == BS_ID_ESC_SPEED) {
+    sc_on_esc_frame(&a->sc, f->data, now_ms);
+  } else if (f->id == BS_ID_ACU_IMU) {
+    sc_on_imu_frame(&a->sc, f->data, now_ms);
+  } else if (f->id == BS_ID_VCU_PEDAL) {
+    sc_on_pedal_frame(&a->sc, f->data, now_ms);
+  } else if (f->id == BS_ID_SAS_STEER) {
+    sc_on_sas_frame(&a->sc, f->data, now_ms);
+  } else {
+    return;
+  }
   ++a->n_safety_rx;
 }
 
@@ -244,7 +267,7 @@ void bs_safety_tick(bs_app_t *a, uint32_t now_ms)
   a->out_alive = (uint8_t)((a->out_alive + 1u) & 0x0Fu);
   a->stat_alive = (uint8_t)((a->stat_alive + 1u) & 0x0Fu);
   ++a->n_steps;
-  if (a->out.state == SC_STATE_NORMAL || a->out.state == SC_STATE_DEGRADED) {
+  if ((a->out.state == SC_STATE_NORMAL) || (a->out.state == SC_STATE_DEGRADED)) {
     a->applied_steer_deg = a->out.steer_deg;
     a->applied_pending = 1;
   }

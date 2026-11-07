@@ -57,8 +57,17 @@ static inline bmpc_real bm_clamp(bmpc_real v, bmpc_real lo, bmpc_real hi)
   return bm_max(lo, bm_min(v, hi));
 }
 
+/* 아주 큰 값에서는 a -= 2 pi 가 값을 바꾸지 못해 반복이 끝나지 않는다 (DEF-5). 그 경우만 fmod 로 먼저 줄인다.
+ * |a| <= 64 pi 에서는 예전과 같은 연산이므로 결과가 비트 단위로 같다. NaN 은 그대로 NaN 이다. */
 static inline bmpc_real bm_wrap_pi(bmpc_real a)
 {
+  if (!((a <= (bmpc_real)(64.0 * BM_PI)) && (a >= (bmpc_real)(-64.0 * BM_PI)))) {
+#ifdef BMPC_USE_FLOAT
+    a = fmodf(a, (float)(2.0 * BM_PI)); /* MCU 에서 배정밀도 소프트웨어 연산을 들이지 않는다 */
+#else
+    a = fmod(a, 2.0 * BM_PI);
+#endif
+  }
   while (a > (bmpc_real)BM_PI) a -= (bmpc_real)(2.0 * BM_PI);
   while (a < (bmpc_real)-BM_PI) a += (bmpc_real)(2.0 * BM_PI);
   return a;

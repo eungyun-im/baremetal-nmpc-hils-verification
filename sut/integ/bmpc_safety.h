@@ -72,7 +72,8 @@ typedef struct {
   uint8_t ctrl[8];                         /* 안전 제어기에 넣을 CTRL_CMD */
   int ctrl_pending;
   sc_out_t out;                            /* 마지막 sc_step 결과 */
-  uint8_t out_alive, stat_alive;
+  uint8_t out_alive;
+  uint8_t stat_alive;
   volatile int applied_pending;            /* tick 이 쓰고 메인 루프가 읽는다 */
   volatile float applied_steer_deg;
 #ifdef BS_TEST_HOOK
@@ -95,7 +96,11 @@ typedef struct {
   int64_t plaus_until_us;
   uint32_t n_plaus;    /* 검출 횟수 */
 #endif
-  uint32_t n_ctrl, n_safety_rx, n_resets, n_steps, n_notes; /* n_notes: 안전 출력을 이력에 넣은 횟수 */
+  uint32_t n_ctrl;
+  uint32_t n_safety_rx;
+  uint32_t n_resets;
+  uint32_t n_steps;
+  uint32_t n_notes; /* 안전 출력을 이력에 넣은 횟수 */
 } bs_app_t;
 
 void bs_default_cfg(bs_cfg_t *cfg);

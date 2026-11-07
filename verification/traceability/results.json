@@ -343,10 +343,12 @@
     {
       "id": "DEF-5",
       "title": "bm_wrap_pi can loop forever on a very large angle",
-      "status": "open, not reachable from normal CAN inputs",
+      "status": "fixed in code, not yet run on the board",
       "verifies": [],
       "patch": null,
-      "unit_tests": [],
+      "unit_tests": [
+        "test_wrap_pi.c:main"
+      ],
       "conditions": "none",
       "hils_laps": 0
     }

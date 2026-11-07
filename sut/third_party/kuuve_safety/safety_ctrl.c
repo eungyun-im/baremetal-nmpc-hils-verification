@@ -465,6 +465,7 @@ void sc_step(sc_t *sc, uint32_t now_ms, sc_out_t *out)
     float steer_t;
     float accel_t;
     float limit;
+    float dt_ms_f;
     uint32_t age;
 
     if (sc->step_seen != 0u) {
@@ -477,7 +478,8 @@ void sc_step(sc_t *sc, uint32_t now_ms, sc_out_t *out)
     check_speed_timeout(sc, now_ms);                                  /* TSR-09 */
     select_targets(sc, &steer_t, &accel_t);                           /* SM */
     accel_t = clamp_accel(sc, accel_t);                               /* TSR-01 */
-    steer_track_update(sc, now_ms, (uint32_t)(dt_s * 1000.0f + 0.5f), out);   /* TSR-13 */
+    dt_ms_f = (dt_s * 1000.0f) + 0.5f;
+    steer_track_update(sc, now_ms, (uint32_t)dt_ms_f, out);              /* TSR-13 */
     accel_t = vehicle_checks(sc, now_ms, accel_t);                    /* TSR-10~13 */
     steer_t = clamp_sym(sc, steer_t, sc->cfg.steer_limit_deg, SC_FLAG_STEER_CLAMP);   /* TSR-01 */
     limit = lat_acc_limit(sc, sc->cfg.steer_limit_deg);               /* TSR-05 */

@@ -10,6 +10,7 @@ run() { name=$1; flags=$2; t=$3
     printf '%-28s %s\n' "$name" "$($B/$name 2>&1 | tail -1)"; else echo "$name BUILD FAILED"; rc=1; fi; }
 run core ""  test_core; run core_more "" test_core_more; run qp_more "" test_qp_more
 run integ "-DBS_TEST_HOOK" test_integ; run integ_more "-DBS_TEST_HOOK" test_integ_more; run integ_plaus "-DBS_TEST_HOOK -DBS_PLAUS" test_integ_more; run app "" test_app
+for fl in "" "-DBMPC_USE_FLOAT"; do n=wrap_pi${fl:+_float}; if gcc -std=gnu99 -O2 -w $fl -Icore/include test/test_wrap_pi.c -lm -o $B/$n; then printf '%-28s %s\n' $n "$($B/$n 2>&1 | tail -1)"; else echo "$n BUILD FAILED"; rc=1; fi; done
 if gcc -std=c99 -O2 -w -Ithird_party/kuuve_safety test/test_safety_reqs.c third_party/kuuve_safety/safety_ctrl.c -lm -o $B/safety_reqs; then
   printf '%-28s %s\n' safety_reqs "$($B/safety_reqs 2>&1 | tail -1)"; else echo "safety_reqs BUILD FAILED"; rc=1; fi
 exit $rc
