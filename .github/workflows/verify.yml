@@ -1,0 +1,36 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  host-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install gcovr
+        run: pip install gcovr==8.2
+      - name: Unit tests
+        run: sut/run_tests.sh
+      - name: Coverage and sanitizers
+        run: sut/quality.sh
+      - name: Traceability rules
+        run: python3 verification/traceability/test_build_rtm.py
+      - name: Traceability is up to date
+        run: python3 verification/traceability/build_rtm.py --check
+      - name: Upload coverage summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-summary
+          path: sut/build_quality/coverage_summary.json
+          if-no-files-found: ignore
