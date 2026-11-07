@@ -119,4 +119,4 @@ print("font", plt.rcParams["font.family"], "rows", len(R), "valid", sum(x["valid
 fig, ax = plt.subplots(figsize=(6.4, 2.8)); it = [("M3: reference change", 21, GREY), ("Tunnel, M8: localization", 10, GREY), ("M6: tracking after lane change", 3, BLUE), ("M2: avoidance replanning", 1, GREY)]
 ax.barh([n for n, _, _ in it][::-1], [v for _, v, _ in it][::-1], color=[c for _, _, c in it][::-1], height=.55)
 for i, (_, v, _) in enumerate(it[::-1]): ax.text(v + .25, i, str(v), va="center", color=INK)
-ax.set(xlabel="Laps above 0.8 m (35 of 70 judged laps)"); ax.set_title("Most laps above 0.8 m coincide with non-controller factors", loc="left", fontsize=11, color=INK); save(fig, "fig14_exceed_causes.png")
+ax.set(xlabel="Laps above 0.8 m (35 of 70 judged laps)"); ax.set_title("Classification of the 35 laps above 0.8 m", loc="left", fontsize=11, color=INK); save(fig, "fig14_exceed_causes.png")
