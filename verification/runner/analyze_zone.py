@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import numpy as np,glob,json,re,math,os,collections,matplotlib,subprocess
 matplotlib.use("Agg"); import matplotlib.pyplot as plt
-plt.rcParams.update({"font.family":"Noto Sans CJK JP","axes.unicode_minus":False,"figure.dpi":150,"axes.spines.top":False,"axes.spines.right":False,"font.size":9})
+plt.rcParams.update({"axes.unicode_minus":False,"figure.dpi":150,"axes.spines.top":False,"axes.spines.right":False,"font.size":9})
 E0,N0=302500,4124000
 csvp=subprocess.run("find ~/catkin_ws/src -name 0.csv | head -1",shell=True,capture_output=True,text=True).stdout.strip()
 W=np.genfromtxt(csvp,delimiter=",",invalid_raise=False,skip_header=1); W=W[:,:2] if W[np.isfinite(W[:,0]),0].mean()>1e5 else W[:,1:3]
@@ -46,16 +46,16 @@ print("stop this run (objE,objN,egoE,egoN,id)",stop)
 old=[(36.7,29.3),(33.7,33.0),(34.6,26.6),(33.9,33.5),(34.7,30.2),(35.5,32.7),(34.9,28.1),(35.1,34.3),(33.9,30.4),(34.7,37.9),(34.7,28.9),(36.4,26.4),(32.6,34.9),(36.1,30.1),(35.1,28.9),(34.9,30.1),(34.7,26.3),(35.0,36.7),(35.3,26.7),(34.6,27.2)]
 for E,N in old[:0]:pass
 # 정지 위치 주변의 높이 분포
-for nm,(e,n) in {"정지군 중심":(35,30),"박스":(34.39,2.82)}.items():
+for nm,(e,n) in {"stop_cluster":(35,30),"box":(34.39,2.82)}.items():
     q=A[(abs(A[:,0]-e)<2.5)&(abs(A[:,1]-n)<4)]
     print(nm,"pts",len(q),"z pct",np.percentile(q[:,2],[1,50,99]).round(2) if len(q) else "", "above -1:",int((q[:,2]>-1).sum()))
 fig,ax=plt.subplots(figsize=(7.2,6.4))
 ax.imshow(np.log1p(H).T,origin="lower",extent=[xe[0],xe[-1],ye[0],ye[-1]],cmap="Greys",vmax=np.log1p(H).max()*.8,aspect="equal")
-ax.plot(C[:,0],C[:,1],color="#2878d6",lw=1.2,label="기준 경로")
-ax.scatter(*zip(*old),s=16,marker="x",color="#c0443c",lw=1,label="M3 정지 물체 (앞선 20랩)")
-if stop: ax.scatter([s[0] for s in stop],[s[1] for s in stop],s=26,marker="x",color="#d07a00",lw=1.2,label="M3 정지 물체 (이번 랩)")
-ax.scatter(34.39,2.82,s=70,marker="s",facecolor="none",edgecolor="#2878d6",lw=1.3,label="시나리오 물체 (좌표 어림)")
-ax.axhline(20.5,color="#888",lw=.8,ls=":");ax.text(70,21,"M3 경계 부근",ha="right",color="#666")
-ax.set(xlim=(10,62),ylim=(-16,56),xlabel=f"동쪽 (m, 기준 {E0})",ylabel=f"북쪽 (m, 기준 {N0})");ax.legend(frameon=False,loc="upper left",fontsize=8);ax.set_title("삼거리와 M3의 라이다 누적 지도 (NPC 없음, 3랩)",loc="left",fontsize=11)
+ax.plot(C[:,0],C[:,1],color="#2878d6",lw=1.2,label="Reference path")
+ax.scatter(*zip(*old),s=16,marker="x",color="#c0443c",lw=1,label="M3 stop targets (20 earlier laps)")
+if stop: ax.scatter([s[0] for s in stop],[s[1] for s in stop],s=26,marker="x",color="#d07a00",lw=1.2,label="M3 stop targets (these laps)")
+ax.scatter(34.39,2.82,s=70,marker="s",facecolor="none",edgecolor="#2878d6",lw=1.3,label="Scenario object (approx. position)")
+ax.axhline(20.5,color="#888",lw=.8,ls=":");ax.text(70,21,"Near M3 boundary",ha="right",color="#666")
+ax.set(xlim=(10,62),ylim=(-16,56),xlabel=f"East (m, from {E0})",ylabel=f"North (m, from {N0})");ax.legend(frameon=False,loc="upper left",fontsize=8);ax.set_title("Accumulated lidar map of junction and M3 (no NPCs, 3 laps)",loc="left",fontsize=11)
 fig.tight_layout();fig.savefig("../figs/fig13_lidar_map.png");
 H2=H.T.copy();np.savez("../figs/lidar_grid.npz",H=H2,xe=xe,ye=ye)

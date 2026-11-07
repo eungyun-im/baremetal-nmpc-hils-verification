@@ -1,150 +1,150 @@
-# 차량용 MCU 베어메탈 NMPC의 소프트웨어 품질과 HILS 검증
+# Software Quality and HILS Verification of a Bare-Metal NMPC
 
-**Software quality and HILS verification of a bare-metal nonlinear MPC on an automotive MCU (NXP S32K312, 120 MHz)**
+**Nonlinear MPC without an OS on an automotive MCU (NXP S32K312, Cortex-M7, 120 MHz)**
 
-OS 없는 차량용 MCU에서 도는 비선형 MPC를 **단위 시험, 커버리지, 뮤테이션 시험, 결함 주입, 실제 보드 HILS**로 검증한 기록입니다. 통과한 결과뿐 아니라 찾은 결함과 불합격 항목도 함께 공개합니다.
+This repository records how the controller was verified with unit tests, coverage, mutation testing, fault injection and hardware-in-the-loop (HILS) runs on a real board. It includes the defects found and the criteria that failed, not only the passing results.
 
-> MISRA나 ISO 26262 준수를 주장하지 않습니다. 시뮬레이터 시험이며 실차 시험은 없습니다.
+> No MISRA or ISO 26262 compliance is claimed. Testing was done in a simulator. There was no vehicle test.
 
-## 한눈에 보기
+## Results at a glance
 
-| 영역 | 결과 | 기준과 범위 |
+| Area | Result | Scope |
 |---|---|---|
-| 단위 시험 | 7개 시험 실행 파일 **모두 통과**, ASan과 UBSan 오류 0건 | 호스트, 2026-11-07, 공개 코드 기준 |
-| 커버리지 | 라인 **96.2%** (1457/1514), 분기 **83.5%** (850/1018) | 호스트, `platform/`과 `test/` 제외 |
-| 뮤테이션 | QP 비교 연산 **27 → 66/81**, 산술 **99 → 127/127** | 2026-11-05, 이후 QP 수정 뒤 재측정 안 함 |
-| 컴파일 경고 | `-Wall -Wextra` 0건, `-Wconversion -Wshadow` 2건 | 코어와 안전 모듈 |
-| 실시간성 | 계산 최대 **24.41 ms**, 왕복 최대 **38.88 ms**, 주기 50 ms | 실제 보드, 측정값이며 WCET 상한이 아님 |
-| HILS | **468랩 기록, 유효 397랩** | MORAI K-City, 시나리오 1개 |
-| 경로 오차 기준 AC-10 | **불합격** (판정 63랩 중 29랩이 0.80 m 초과) | 원인 분석은 아래 참고 |
+| Unit tests | **All 7 test executables pass**, 0 ASan or UBSan errors | Host, 2026-11-07, published code |
+| Coverage | Line **96.2%** (1457/1514), branch **83.5%** (850/1018) | Host, excludes `platform/` and `test/` |
+| Mutation | QP comparison **27 → 66/81**, arithmetic **99 → 127/127** | 2026-11-05, not rerun after the later QP fix |
+| Compiler warnings | `-Wall -Wextra`: 0, `-Wconversion -Wshadow`: 2 | Core and safety modules |
+| Real-time | Max solve **24.41 ms**, max round trip **38.88 ms**, 50 ms period | Real board, measured, not a WCET bound |
+| HILS | **468 laps recorded, 397 valid** | MORAI K-City, one scenario |
+| Path error criterion AC-10 | **Failed**: 29 of 63 judged laps exceeded 0.80 m | See the failure analysis below |
 
-## 시험 전략
+## Test strategy
 
-| 단계 | 방법 | 찾을 수 있는 것 |
+| Layer | Method | What it can find |
 |---|---|---|
-| 단위 시험 | double, float, 안전 모듈 빌드별 실행 | 로직 오류, 수치 오류 |
-| 커버리지 | gcovr 라인, 분기 | 실행되지 않은 코드 |
-| 뮤테이션 | 비교, 산술 연산을 바꿔 시험이 잡는지 확인 | 시험 자체의 약점 |
-| 결함 주입 시험 | QP에 결함 136개를 직접 넣어 검출 확인 | 커버리지로 안 보이는 빈틈 |
-| Sanitizer | ASan, UBSan | 메모리 오류, 미정의 동작 |
-| HILS | 실제 보드와 MORAI 폐루프, 지연, 통신, 조향, MCU 정지 결함 주입 | 실시간성, 통합 결함 |
-| 무작위 블록 비교 | 수정 전후를 섞어서 실행 | 세션 효과와 수정 효과 구분 |
+| Unit tests | Separate double, float and safety builds | Logic and numerical errors |
+| Coverage | gcovr line and branch | Code that never ran |
+| Mutation | Change comparison and arithmetic operators, check that tests fail | Weak tests |
+| Injected defects | 136 hand-written defects in the QP solver | Gaps coverage cannot show |
+| Sanitizers | ASan and UBSan | Memory errors and undefined behavior |
+| HILS | Real board in closed loop with delay, communication, steering and MCU hang faults | Timing and integration defects |
+| Randomized blocks | Mix firmware versions within a session | Separates fix effects from session effects |
 
-## 단위 시험과 커버리지
+## Unit tests and coverage
 
-![모듈별 커버리지](verification/figures/fig15_coverage.png)
+![Coverage by module](verification/figures/fig15_coverage.png)
 
 ```sh
-sut/run_tests.sh   # 단위 시험, 보드와 ROS 불필요
-sut/quality.sh     # 커버리지와 sanitizer, gcovr 필요
+sut/run_tests.sh   # unit tests, no board or ROS needed
+sut/quality.sh     # coverage and sanitizers, needs gcovr
 ```
 
-커버리지가 낮은 곳도 그대로 공개합니다. `safety_ctrl.c`는 분기 62.2%, `bmpc_config.c`는 분기 65.9%입니다. 측정 결과는 `verification/results/coverage_summary.json`에 있습니다.
+Weak spots are shown as measured: `safety_ctrl.c` has 62.2% branch coverage and `bmpc_config.c` has 65.9%. Data is in `verification/results/coverage_summary.json`.
 
-**측정 실수도 있었습니다.** 처음 기록한 커버리지 기준선은 한 폴더에서 다시 빌드하면서 `.gcno`가 덮여 마지막 시험만 집계된 값이었습니다. 지금은 시험마다 빌드 폴더를 나눕니다.
+**A measurement mistake was also found.** An early coverage baseline counted only the last test, because rebuilding in one folder overwrote the `.gcno` files. Each test now has its own build folder.
 
-## 뮤테이션과 결함 주입
+## Mutation testing and injected defects
 
-2026-11-05 측정값입니다. **그 뒤 QP와 안전 코드가 바뀌었고 다시 측정하지 않았습니다.** 값은 강화 전 → 강화 후이고, 살아남은 변이에는 결과가 같은 변이 후보도 포함됩니다.
+Measured on 2026-11-05. **The QP and safety code changed after that, and these were not rerun.** Values are before and after strengthening the tests. Surviving mutants include likely equivalent ones.
 
-| 대상 | 전 | 후 | 전체 |
+| Target | Before | After | Total |
 |---|---:|---:|---:|
-| `bmpc_qp` 비교 연산 (double) | 27 | **66** | 81 |
-| `bmpc_qp` 비교 연산 (float) | 11 | **66** | 81 |
-| `bmpc_qp` 산술 연산 (double) | 99 | **127** | 127 |
-| `bmpc_qp` 산술 연산 (float) | 46 | **127** | 127 |
+| `bmpc_qp` comparison (double) | 27 | **66** | 81 |
+| `bmpc_qp` comparison (float) | 11 | **66** | 81 |
+| `bmpc_qp` arithmetic (double) | 99 | **127** | 127 |
+| `bmpc_qp` arithmetic (float) | 46 | **127** | 127 |
 | `bmpc_safety` | 17 | **42** | 45 |
 | `bmpc_controller` | 4 | **30** | 34 |
 | `bmpc_post` | 0 | **22** | 28 |
 | `bmpc_app` | 15 | **19** | 21 |
 | `bmpc_protocol` | 14 | **15** | 25 |
 
-QP에 직접 넣은 결함 136개의 검출 수는 double **73 → 124**, float **22 → 126**입니다.
+Of the 136 injected QP defects, detection rose from **73 to 124** in double and from **22 to 126** in float.
 
-## 이 과정에서 찾은 결함
+## Defects found
 
-| 결함 | 발견 방법 | 조치 |
+| Defect | Found by | Action |
 |---|---|---|
-| QP가 길이 0인 이동에 반복 상한을 소모 | 코드 검토, 호스트 재현, HILS 확인 | 수정, 회귀 시험 추가 (`defects/`) |
-| 위 수정이 정상 판정을 잘못 늘림 | 독립 반례 | 재수정, 일부 사례 남음 |
-| 안전 제어기가 잘못된 조향 명령을 검출 못 함 | 결함 주입 | 타당성 검사 추가 |
-| 워치독 꺼짐 | 코드 검토 | 활성화 후 시험 |
-| 오래된 브리지가 주입 명령을 무시 | 로그 검토 | 재빌드, 11랩 무효, 주입 확인 추가 |
-| 조향 검사가 결함 중 일찍 풀리고 복귀 때 조향을 막을 수 있음 | bag 분석 | **열림, 재설계 후보** |
+| QP spent its iteration cap on zero-length steps | Code review, host reproduction, HILS | Fixed, regression tests added (`defects/`) |
+| That fix raised false OK cases | Independent counterexample | Fixed again, some cases remain |
+| Safety controller missed bad steering commands | Fault injection | Added a plausibility check |
+| Watchdog was disabled | Code review | Enabled and tested |
+| Stale bridge binary ignored injection commands | Log review | Rebuilt, 11 laps voided, injection check added |
+| Steering check can release during a fault and hold steering on recovery | Bag analysis | **Open, redesign candidate** |
 
-## HILS 결과
+## HILS results
 
-### 무작위 블록 비교: QP 수정
-48랩, M5 60~80 m 구간 쌍별 차이 −0.064 m (21쌍, p=0.0001).
+### Randomized blocks: QP fix
+48 laps. Paired difference in the M5 60-80 m window: -0.064 m (21 pairs, p=0.0001).
 
-![QP 수정 전후](verification/figures/fig3_xover.png)
+![QP fix before and after](verification/figures/fig3_xover.png)
 
-### 계산 시간과 지연 보상
-| 계산 시간 | 지연 보상 |
+### Solve time and delay compensation
+| Solve time | Delay compensation |
 |---|---|
-| ![계산 시간](verification/figures/fig2_budget.png) | ![지연 보상](verification/figures/fig1_delay.png) |
+| ![Solve time](verification/figures/fig2_budget.png) | ![Delay compensation](verification/figures/fig1_delay.png) |
 
-지연 보상 그림은 순차 시험이라 세션 효과와 섞여 있을 수 있습니다.
+The delay runs were sequential, so session effects may be mixed in.
 
-### 결함 주입
-| 통신 결함 | 곡선 조향 결함 |
+### Fault injection
+| Communication faults | Curve steering faults |
 |---|---|
-| ![통신 결함](verification/figures/fig4_faults.png) | ![조향 결함](verification/figures/fig5_curve.png) |
+| ![Communication faults](verification/figures/fig4_faults.png) | ![Steering faults](verification/figures/fig5_curve.png) |
 
-- 통신 결함은 직선 위치에서 주입했고, 조향 결함은 조건마다 3랩입니다.
-- 4° 스텝은 검출하지 못했습니다.
-- MCU 정지 때는 안전 정지 0.176~0.182 s, 정상 복귀 2.54~2.55 s였고, 제동은 PC 브리지가 담당했습니다.
+- Communication faults were injected on straight road. Steering faults have 3 laps per condition.
+- The 4° step was not detected.
+- In MCU hang tests, safe stop took 0.176-0.182 s and normal state returned at 2.54-2.55 s. The PC bridge did the braking.
 
-## 불합격 분석: AC-10
+## Failure analysis: AC-10
 
-판정 범위를 넓힌 70랩 중 0.8 m 초과 35랩을 나눴습니다. **판정은 바꾸지 않았습니다.**
+Using a wider set of 70 judged laps, the 35 laps above 0.8 m were classified. **The verdict was not changed.**
 
-![초과 원인](verification/figures/fig14_exceed_causes.png)
+![Causes of exceedance](verification/figures/fig14_exceed_causes.png)
 
-| 구간 | 랩 | 근거 |
-|---|---|---|
-| M3 | 21 | 진입 전 차와 경로 거리 0.08 m 이하, 회피 뒤 기준 경로가 경계에서 중심선으로 돌아감 |
-| 터널 출구, M8 | 10 | EKF 기준 오차 0.52 m 이하, EKF와 GPS 차이 3.5~8 m |
-| M6 | 3 | 차선 변경 뒤 EKF 기준 오차도 1.5~2.1 m, **제어기 관련 후보, 원인 미확정** |
-| M2 | 1 | 회피 경로 재계산 중 |
+| Section | Laps | Evidence |
+|---|---:|---|
+| M3 | 21 | Car within 0.08 m of the path before entry. After avoidance, the reference returned to the centerline at the zone boundary |
+| Tunnel exit, M8 | 10 | EKF-based error at most 0.52 m, EKF to GPS difference 3.5-8 m |
+| M6 | 3 | EKF-based error also 1.5-2.1 m after a lane change. **Controller candidate, cause not confirmed** |
+| M2 | 1 | During avoidance replanning |
 
-| M3 경로 변화 (SILS 1랩) | 라이다 누적 지도 (NPC 없음, 3랩) |
+| M3 reference change (1 SILS lap) | Lidar map (no NPCs, 3 laps) |
 |---|---|
-| ![경로 변화](verification/figures/fig12_m3_jump.png) | ![라이다 지도](verification/figures/fig13_lidar_map.png) |
+| ![Reference change](verification/figures/fig12_m3_jump.png) | ![Lidar map](verification/figures/fig13_lidar_map.png) |
 
-M3 정지 대상은 8 m 거리에서 세워진 물체가 보이지 않아 노면 오검출을 의심하지만 확정하지 않았습니다. 기준 경로 변경 뒤 3 s를 뺀 사전 정의 지표에서도 22/70랩이 0.8 m를 넘었습니다.
+No upright object was visible at the M3 stop target from 8 m, so a road-surface false detection is suspected but not confirmed. With a metric defined in advance that removes 3 s after each reference change, 22 of 70 laps still exceeded 0.8 m.
 
-## 데이터 신뢰성 규칙
+## Data integrity rules
 
-- 합격 기준과 변경 이력은 `docs/acceptance_criteria.md`에 공개합니다. 기준은 첫 7랩을 본 뒤 정했고, 계산 범위 일부는 불합격을 본 뒤 바뀌었습니다.
-- 의심 랩은 지우지 않고 표시합니다. 무효 사유는 아래와 같습니다.
-- 추가 지표는 결과를 보기 전에 정의하고 `docs/decisions.md`에 기록합니다.
+- Criteria and their change log are public in `docs/acceptance_criteria.md`. They were set after the first 7 laps, and some calculation scopes changed after failures were seen.
+- Suspect laps are flagged, not deleted.
+- Added metrics are defined before results are viewed and logged in `docs/decisions.md`.
 
-![무효 사유](verification/figures/fig7_invalid.png)
+![Invalid lap reasons](verification/figures/fig7_invalid.png)
 
-EKF 발산 무효 32랩은 최대 시점 측면 차이가 1 m 미만인 랩이 30개라, 시간 지연이 섞였을 수 있습니다. 규칙은 바꾸지 않았습니다.
+In 30 of the 32 `ekf_diverged` laps, the lateral difference at the peak was under 1 m, so time lag may be mixed in. The rule was not changed.
 
-## 한계
+## Limitations
 
-- 시뮬레이터, 시나리오 1개이며 실차 시험이 없습니다.
-- 커버리지와 뮤테이션은 호스트 측정입니다. S32K312에서 실행한 값이 아닙니다.
-- 측정 실행 시간은 WCET 상한이 아닙니다.
-- 최종 펌웨어의 정상 주행은 2/30랩입니다.
-- 안전 기능이 같은 MCU에 있어 칩 고장은 대응하지 못합니다.
-- 5° 미만 조향 오류와 유지되는 명령은 검출하지 못하고, 서서히 커지는 오류는 시험하지 않았습니다.
+- Simulator and one scenario only, with no vehicle test.
+- Coverage and mutation results come from the host, not the S32K312.
+- Measured execution times are not a WCET bound.
+- The final firmware has 2 of 30 planned normal laps.
+- Safety functions share one MCU, so chip failure is not covered.
+- Steering steps under 5° and held commands are not detected. Slowly growing errors were not tested.
 
-## 저장소 구조
+## Repository layout
 
 ```text
-sut/            MPC 코어, 안전 통합, 펌웨어, ROS 브리지, 단위 시험
-verification/   시험 계획, 런너, 결과, 그림
-defects/        수정 패치
-docs/           합격 기준, 전체 분석, 결정 기록
+sut/            MPC core, safety integration, firmware, ROS bridge, unit tests
+verification/   test plans, runner, results, figures
+defects/        fix patches
+docs/           acceptance criteria, full analysis, decision log (in Korean)
 ```
 
-HILS 재현에는 보드, MORAI 라이선스, 전체 ROS 스택이 필요하며 이 저장소에 모두 들어 있지는 않습니다.
+Reproducing HILS needs the board, a MORAI license and the full ROS stack, which are not all included here.
 
-## 라이선스와 작성
+## License and authorship
 
-- 라이선스는 아직 정하지 않았습니다.
-- 구현과 분석에 AI 도구(Claude Code)를 사용했습니다.
+- License: not chosen yet.
+- AI tools (Claude Code) were used for implementation and analysis.
