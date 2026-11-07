@@ -23,11 +23,11 @@ A nonlinear MPC runs without an OS on an automotive MCU (NXP S32K312, Cortex-M7,
 
 | Area | Result | Scope |
 |---|---|---|
-| Unit tests | **All 8 test executables pass**, 0 ASan or UBSan errors | Host, 2026-11-07, published code |
+| Unit tests | **All 10 test executables pass**, 0 ASan or UBSan errors | Host, 2026-11-07, published code |
 | Coverage | Line **97.0%** (1468/1514), branch **84.9%** (864/1018) | Host, excludes `platform/` and `test/` |
 | Mutation | QP comparison **27 → 66/81**, arithmetic **99 → 127/127** | 2026-11-05, not rerun after the later QP fix |
 | Compiler warnings | `-Wall -Wextra`: 0, `-Wconversion -Wshadow`: 2 | Core and safety modules |
-| Static analysis | 412 MISRA C:2012 findings over 22 rules, 17 other findings, **1 real defect** | cppcheck 2.13 MISRA addon and clang-tidy 18, no compliance claimed |
+| Static analysis | 383 MISRA C:2012 findings over 22 rules, **0 required-rule findings in the safety layer**, 1 real defect found and fixed | cppcheck 2.13 MISRA addon and clang-tidy 18, no compliance claimed |
 | Real-time | Max solve **24.41 ms**, max round trip **38.88 ms**, 50 ms period | Real board, measured, not a WCET bound |
 | HILS | **468 laps recorded, 397 valid** | MORAI K-City, one scenario |
 | Path error criterion AC-10 | **Failed**: 29 of 63 judged laps exceeded 0.80 m | See the failure analysis below |
@@ -84,7 +84,11 @@ Weak spots are shown as measured: `safety_ctrl.c` has 71.6% branch coverage and 
 sut/static_analysis.py   # needs cppcheck and clang-tidy
 ```
 
-The most useful result was a known defect found again from a different angle: MISRA rule 14.1 flags the floating-point loop in `bm_wrap_pi`, which a unit test review had already shown can hang on a very large angle. No finding was fixed in the firmware, so it stays the build tested in HILS.
+The most useful result was a known defect found again from a different angle: MISRA rule 14.1 flags the floating-point loop in `bm_wrap_pi`, which a unit test review had already shown can hang on a very large angle. It is now fixed, with a regression test that fails on the old code.
+
+The effort follows risk. The safety layer, which handles faults, now has **no required-rule findings** (18 before), and its remaining advisory findings are recorded as deviations with reasons. The MPC core keeps its findings in the baseline. The baseline also caught one new violation introduced during the cleanup.
+
+The changed firmware builds (flash +408 B) but has **not run on the board yet**. The final HILS laps will use it.
 
 ## Mutation testing and injected defects
 
@@ -114,7 +118,7 @@ Of the 136 injected QP defects, detection rose from **73 to 124** in double and 
 | Watchdog was disabled | Code review | Enabled and tested |
 | Stale bridge binary ignored injection commands | Log review | Rebuilt, 11 laps voided, injection check added |
 | Steering check can release during a fault and hold steering on recovery | Bag analysis | **Open, redesign candidate** |
-| `bm_wrap_pi` can loop forever on a very large angle | Unit test review, then MISRA 14.1 | **Open**, not reachable from normal CAN inputs |
+| `bm_wrap_pi` can loop forever on a very large angle | Unit test review, then MISRA 14.1 | Fixed in code with a regression test, **not yet run on the board** |
 
 ## HILS results
 

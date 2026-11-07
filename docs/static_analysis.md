@@ -6,11 +6,23 @@ Scope: 11 files in `core/src`, `integ` and `third_party/kuuve_safety`, analyzed 
 
 > Rule titles are short paraphrases, not the MISRA text. cppcheck checks a subset of MISRA C:2012. This code was not written to MISRA, so no compliance is claimed.
 
-**429 findings: 412 MISRA C:2012 findings over 22 rules (Advisory 248, Required 164), and 17 other findings.** CI fails when a new finding appears that is not in `verification/static/baseline.json`.
+**400 findings: 383 MISRA C:2012 findings over 22 rules (Advisory 237, Required 146), and 17 other findings.** CI fails when a new finding appears that is not in `verification/static/baseline.json`.
 
-## Real defect found
+## Real defect found and fixed
 
-MISRA rule 14.1 flags the floating-point loops in `bm_wrap_pi` (`core/include/bmpc/bmpc_math.h`). An earlier unit test review reproduced a hang there: for a very large angle, subtracting 2π no longer changes the value and the loop never ends. Normal CAN inputs cannot reach it, because yaw rate is a 16-bit field and the wheelbase estimate is clamped. It is tracked as DEF-5 and is **open**. The firmware was not changed, so that it stays the build tested in HILS.
+MISRA rule 14.1 flags the floating-point loops in `bm_wrap_pi` (`core/include/bmpc/bmpc_math.h`). An earlier unit test review reproduced a hang there: for a very large angle, subtracting 2π no longer changes the value and the loop never ends. Normal CAN inputs cannot reach it. It is tracked as DEF-5. The fix reduces angles beyond ±64π with `fmod` first and keeps the old arithmetic otherwise; `test_wrap_pi.c` fails on the old code and checks bitwise equality on 571,429 inputs. The rule 14.1 finding remains, because the bounded loops are still floating-point loops. **The fix has not run on the board yet.**
+
+## Safety layer
+
+The safety layer (`integ/bmpc_safety.*`, `third_party/kuuve_safety/safety_ctrl.c`) was cleaned first because it handles faults. **Required-rule findings there went from 18 to 0.** The changes are braces, parentheses, explicit comparisons, casts and split declarations, with no change in behavior; all unit tests pass unchanged. The remaining findings are kept as deviations:
+
+| Rule | Count | Reason |
+|---|---:|---|
+| 15.5 | 15 | Early returns on invalid frames and in the plausibility state machine. Restructuring would change control flow in tested safety code for an advisory rule. |
+| 2.5 | 5 | Macros used by platform/s32k312/main.c and the tests, which are outside the analyzed scope. |
+| 11.5 | 1 | CAN send callback receives its context as void *, the usual C callback pattern. |
+| 8.7 | 1 | bs_make_ctrl_frame has external linkage so the unit tests can check the CTRL_CMD encoding. |
+| bugprone-branch-clone | 1 | Empty else branch kept on purpose after if ... else if. |
 
 ## Other findings
 
@@ -26,19 +38,19 @@ MISRA rule 14.1 flags the floating-point loops in `bm_wrap_pi` (`core/include/bm
 
 | Rule | Category | Topic | Count | Disposition |
 |---|---|---|---:|---|
-| 12.1 | Advisory | Make operator precedence explicit | 123 | Style. Not changed. |
-| 15.6 | Required | Loop and if bodies must be compound statements | 55 | Single-line bodies without braces. Not changed. |
+| 12.1 | Advisory | Make operator precedence explicit | 115 | Style. Not changed. |
 | 15.5 | Advisory | Single point of exit | 46 | Early returns on errors. Not changed. |
-| 12.3 | Advisory | Avoid the comma operator | 45 | Mostly several variables declared or advanced in one statement. Not changed. |
-| 10.4 | Required | Operands of the same essential type category | 38 | Mixed int and float arithmetic. Reviewed as part of the float build tests. Not changed. |
-| 17.7 | Required | Use the return value of non-void functions | 23 | Ignored returns, mostly status of helpers. Not changed. |
+| 15.6 | Required | Loop and if bodies must be compound statements | 44 | Single-line bodies without braces. Not changed. |
+| 12.3 | Advisory | Avoid the comma operator | 42 | Mostly several variables declared or advanced in one statement. Not changed. |
+| 10.4 | Required | Operands of the same essential type category | 36 | Mixed int and float arithmetic. Reviewed as part of the float build tests. Not changed. |
+| 17.7 | Required | Use the return value of non-void functions | 21 | Ignored returns, mostly status of helpers. Not changed. |
 | 10.3 | Required | No assignment to a narrower or different essential type | 17 | Narrowing into fixed-width protocol fields. Not changed. |
-| 14.4 | Required | Controlling expressions must be essentially Boolean | 14 | Integer flags used as conditions. Not changed. |
+| 14.4 | Required | Controlling expressions must be essentially Boolean | 12 | Integer flags used as conditions. Not changed. |
 | 2.5 | Advisory | Unused macro | 10 | Not changed. |
 | 20.5 | Advisory | Avoid #undef | 6 | X-macro pattern. Not changed. |
 | 8.7 | Advisory | External linkage used in one file only | 6 | Not changed. |
-| 10.8 | Required | Composite expression cast to a wider or different type | 5 | Not changed. |
 | 20.7 | Required | Macro parameters in parentheses | 5 | X-macro parameters used as names, where parentheses are not possible. Not changed. |
+| 10.8 | Required | Composite expression cast to a wider or different type | 4 | Not changed. |
 | 17.8 | Advisory | Do not modify function parameters | 4 | Not changed. |
 | 14.1 | Required | No floating-point loop counter | 3 | Includes bm_wrap_pi, which can hang on a very large angle. See DEF-5. Open. |
 | 15.7 | Required | if ... else if ends with else | 3 | Not changed. |
@@ -55,17 +67,17 @@ MISRA rule 14.1 flags the floating-point loops in `bm_wrap_pi` (`core/include/bm
 |---|---:|
 | `core/src/bmpc_mpc.c` | 96 |
 | `core/src/bmpc_qp.c` | 88 |
-| `integ/bmpc_safety.c` | 39 |
 | `core/src/bmpc_controller.c` | 37 |
 | `core/src/bmpc_delay.c` | 28 |
 | `core/src/bmpc_protocol.c` | 26 |
 | `core/src/bmpc_config.c` | 20 |
 | `core/src/bmpc_post.c` | 20 |
 | `core/src/bmpc_app.c` | 19 |
+| `integ/bmpc_safety.c` | 13 |
 | `core/include/bmpc/bmpc_math.h` | 8 |
-| `integ/bmpc_safety.h` | 7 |
 | `core/src/bmpc_weights.c` | 6 |
-| `third_party/kuuve_safety/safety_ctrl.c` | 5 |
+| `integ/bmpc_safety.h` | 5 |
+| `third_party/kuuve_safety/safety_ctrl.c` | 4 |
 | `core/include/bmpc/bmpc_mpc.h` | 3 |
 | `core/include/bmpc/bmpc_protocol.h` | 3 |
 | `core/include/bmpc/bmpc_weights.h` | 2 |
@@ -78,4 +90,5 @@ MISRA rule 14.1 flags the floating-point loops in `bm_wrap_pi` (`core/include/bm
 
 - The cppcheck MISRA addon covers only part of MISRA C:2012 and was run without the rule texts.
 - Most findings were reviewed by rule, not one by one. Only the non-MISRA findings and rules 14.1, 20.7 and 2.2 were looked at in the code.
-- No finding was fixed. Changing the firmware would separate it from the build tested in HILS.
+- Only the safety layer and `bm_wrap_pi` were changed. The MPC core keeps its findings, so it stays close to the build tested in HILS.
+- The changed firmware has been built but has not run on the board.

@@ -13,6 +13,7 @@ import xml.etree.ElementTree as ET
 
 SUT = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(SUT)
 OUT = os.path.join(SUT, "build_static"); BASE = os.path.join(ROOT, "verification", "static", "baseline.json")
+BEFORE_SAFETY_REQUIRED = 18   # measured with cppcheck 2.13 before the safety layer cleanup, 2026-11-07
 SOURCES = sorted([os.path.join("core/src", f) for f in os.listdir(os.path.join(SUT, "core/src")) if f.endswith(".c")] +
                  ["integ/bmpc_safety.c", "third_party/kuuve_safety/safety_ctrl.c"])
 INC = ["-Icore/include", "-Iinteg", "-Ithird_party/kuuve_safety"]
@@ -78,7 +79,9 @@ def report(found, versions, path):
          "> " + disp["note"], "",
          "**%d findings: %d MISRA C:2012 findings over %d rules (%s), and %d other findings.** CI fails when a new finding appears that is not in `verification/static/baseline.json`." % (
              len(found), len(misra), len(rc), ", ".join("%s %d" % (k, v) for k, v in sorted(cat.items())), len(other)), "",
-         "## Real defect found", "", "MISRA rule 14.1 flags the floating-point loops in `bm_wrap_pi` (`core/include/bmpc/bmpc_math.h`). An earlier unit test review reproduced a hang there: for a very large angle, subtracting 2π no longer changes the value and the loop never ends. Normal CAN inputs cannot reach it, because yaw rate is a 16-bit field and the wheelbase estimate is clamped. It is tracked as DEF-5 and is **open**. The firmware was not changed, so that it stays the build tested in HILS.", "",
+         "## Real defect found and fixed", "", "MISRA rule 14.1 flags the floating-point loops in `bm_wrap_pi` (`core/include/bmpc/bmpc_math.h`). An earlier unit test review reproduced a hang there: for a very large angle, subtracting 2π no longer changes the value and the loop never ends. Normal CAN inputs cannot reach it. It is tracked as DEF-5. The fix reduces angles beyond ±64π with `fmod` first and keeps the old arithmetic otherwise; `test_wrap_pi.c` fails on the old code and checks bitwise equality on 571,429 inputs. The rule 14.1 finding remains, because the bounded loops are still floating-point loops. **The fix has not run on the board yet.**", "",
+         "## Safety layer", "", "The safety layer (`integ/bmpc_safety.*`, `third_party/kuuve_safety/safety_ctrl.c`) was cleaned first because it handles faults. **Required-rule findings there went from %d to %d.** The changes are braces, parentheses, explicit comparisons, casts and split declarations, with no change in behavior; all unit tests pass unchanged. The remaining findings are kept as deviations:" % (BEFORE_SAFETY_REQUIRED, sum(1 for f in found if "safety" in f["file"] and f["rule"].startswith("misra") and disp["misra"].get(f["rule"][12:], [""])[0] == "Required")), "",
+         "| Rule | Count | Reason |", "|---|---:|---|"] + ["| %s | %d | %s |" % (r, n, disp["safety_layer"].get(r, "Not reviewed.")) for r, n in collections.Counter(f["rule"].replace("misra-c2012-", "") for f in found if "safety" in f["file"]).most_common()] + ["",
          "## Other findings", "", "| Tool | Rule | Count | Disposition |", "|---|---|---:|---|"]
     for (t, r), n in sorted(collections.Counter((f["tool"], f["rule"]) for f in other).items(), key=lambda x: -x[1]):
         L.append("| %s | `%s` | %d | %s |" % (t, r, n, disp["other"].get(r, "Not reviewed.")))
@@ -89,7 +92,7 @@ def report(found, versions, path):
     L += ["", "## MISRA findings by file", "", "| File | Count |", "|---|---:|"] + ["| `%s` | %d |" % (f, n) for f, n in collections.Counter(x["file"] for x in misra).most_common()]
     L += ["", "## Limits", "", "- The cppcheck MISRA addon covers only part of MISRA C:2012 and was run without the rule texts.",
           "- Most findings were reviewed by rule, not one by one. Only the non-MISRA findings and rules 14.1, 20.7 and 2.2 were looked at in the code.",
-          "- No finding was fixed. Changing the firmware would separate it from the build tested in HILS.", ""]
+          "- Only the safety layer and `bm_wrap_pi` were changed. The MPC core keeps its findings, so it stays close to the build tested in HILS.", "- The changed firmware has been built but has not run on the board.", ""]
     open(path, "w").write("\n".join(L))
 
 
