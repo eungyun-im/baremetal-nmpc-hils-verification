@@ -1,8 +1,20 @@
-# Software Quality and HILS Verification of a Bare-Metal NMPC
+<div align="center">
 
-**Nonlinear MPC without an OS on an automotive MCU (NXP S32K312, Cortex-M7, 120 MHz)**
+<img src="docs/img/hero.png" alt="Bare-metal NMPC: 24.41 ms max solve, 468 recorded laps, 96.2% line coverage, 6 defects found with 1 open" width="100%">
 
-This repository records how the controller was verified with unit tests, coverage, mutation testing, fault injection and hardware-in-the-loop (HILS) runs on a real board. It includes the defects found and the criteria that failed, not only the passing results.
+![C99](https://img.shields.io/badge/C99-00599C?style=flat-square&logo=c&logoColor=white)
+![NXP S32K312](https://img.shields.io/badge/NXP_S32K312-000000?style=flat-square&logoColor=white)
+![CAN](https://img.shields.io/badge/CAN-555555?style=flat-square&logoColor=white)
+![ROS](https://img.shields.io/badge/ROS-22314E?style=flat-square&logo=ros&logoColor=white)
+![MORAI](https://img.shields.io/badge/MORAI_HILS-555555?style=flat-square&logoColor=white)
+
+[Results](#results-at-a-glance) · [Setup](#setup) · [Strategy](#test-strategy) · [Coverage](#unit-tests-and-coverage) · [Mutation](#mutation-testing-and-injected-defects) · [Defects](#defects-found) · [HILS](#hils-results) · [Failure analysis](#failure-analysis-ac-10) · [Limitations](#limitations)
+
+</div>
+
+---
+
+A nonlinear MPC runs without an OS on an automotive MCU (NXP S32K312, Cortex-M7, 120 MHz). This repository records how it was verified with unit tests, coverage, mutation testing, fault injection and hardware-in-the-loop (HILS) runs on a real board. It includes the defects found and the criteria that failed, not only the passing results.
 
 > No MISRA or ISO 26262 compliance is claimed. Testing was done in a simulator. There was no vehicle test.
 
@@ -17,6 +29,10 @@ This repository records how the controller was verified with unit tests, coverag
 | Real-time | Max solve **24.41 ms**, max round trip **38.88 ms**, 50 ms period | Real board, measured, not a WCET bound |
 | HILS | **468 laps recorded, 397 valid** | MORAI K-City, one scenario |
 | Path error criterion AC-10 | **Failed**: 29 of 63 judged laps exceeded 0.80 m | See the failure analysis below |
+
+## Setup
+
+![HILS setup](docs/img/architecture.png)
 
 ## Test strategy
 
