@@ -110,6 +110,7 @@ def steer_profile(path):
 
 
 def steer_corr(out_dir, rows_a, rows_b):
+    import numpy as np
     def mean_profile(rows):
         profiles = [steer_profile(os.path.join(out_dir, "bags", r["bag"])) for r in rows[:MAX_BAGS]]
         size = min(len(p) for p in profiles)

@@ -2,6 +2,7 @@
 
 <img src="docs/img/hero.png" alt="Bare-metal NMPC: 24.41 ms max solve, 468 recorded laps, 97.0% line coverage, 6 defects found with 1 open" width="100%">
 
+[![verify](https://github.com/eungyun-im/baremetal-nmpc-hils-verification/actions/workflows/verify.yml/badge.svg)](https://github.com/eungyun-im/baremetal-nmpc-hils-verification/actions/workflows/verify.yml)
 ![C99](https://img.shields.io/badge/C99-00599C?style=flat-square&logo=c&logoColor=white)
 ![NXP S32K312](https://img.shields.io/badge/NXP_S32K312-000000?style=flat-square&logoColor=white)
 ![CAN](https://img.shields.io/badge/CAN-555555?style=flat-square&logoColor=white)
@@ -61,6 +62,8 @@ python3 verification/traceability/build_rtm.py --check   # fails if results no l
 ## Unit tests and coverage
 
 ![Coverage by module](verification/figures/fig15_coverage.png)
+
+CI runs the unit tests, coverage, sanitizers and the traceability check on every push and pull request.
 
 ```sh
 sut/run_tests.sh   # unit tests, no board or ROS needed
