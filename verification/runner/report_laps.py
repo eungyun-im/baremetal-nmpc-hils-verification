@@ -10,8 +10,6 @@ import os
 import statistics
 import sys
 
-import numpy as np
-import rosbag
 
 CONFIG = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "config", "acceptance.json")
 GRID_M = 1.0
@@ -90,6 +88,8 @@ def fault_failures(row, rule):
 
 
 def steer_profile(path):
+    import numpy as np  # bag analysis only, so the verdict rules import without ROS
+    import rosbag
     """같은 위치끼리 비교하도록 조향을 주행 거리 격자에 놓는다."""
     pose, steer = [], []
     with rosbag.Bag(path) as bag:
@@ -121,6 +121,8 @@ def steer_corr(out_dir, rows_a, rows_b):
 
 
 def m7_target(out_dir, row, cache):
+    import numpy as np  # bag analysis only, so the verdict rules import without ROS
+    import rosbag
     """M7(고주로) 구간의 최고 목표 속도. 랩마다 약 20 또는 25 m/s 로 갈려 주행 시간과 오차를 그대로 평균 내면 안 된다."""
     bag_name = row["bag"]
     if bag_name not in cache:
