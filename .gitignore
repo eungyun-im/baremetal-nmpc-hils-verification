@@ -4,3 +4,5 @@ build/
 *.elf
 *.bin
 __pycache__/
+build_tests/
+build_quality/
