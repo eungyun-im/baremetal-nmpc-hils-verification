@@ -1,0 +1,34 @@
+{
+  "note": "Rule titles are short paraphrases, not the MISRA text. cppcheck checks a subset of MISRA C:2012. This code was not written to MISRA, so no compliance is claimed.",
+  "misra": {
+    "12.1": ["Advisory", "Make operator precedence explicit", "Style. Not changed."],
+    "15.6": ["Required", "Loop and if bodies must be compound statements", "Single-line bodies without braces. Not changed."],
+    "15.5": ["Advisory", "Single point of exit", "Early returns on errors. Not changed."],
+    "12.3": ["Advisory", "Avoid the comma operator", "Mostly several variables declared or advanced in one statement. Not changed."],
+    "10.4": ["Required", "Operands of the same essential type category", "Mixed int and float arithmetic. Reviewed as part of the float build tests. Not changed."],
+    "17.7": ["Required", "Use the return value of non-void functions", "Ignored returns, mostly status of helpers. Not changed."],
+    "10.3": ["Required", "No assignment to a narrower or different essential type", "Narrowing into fixed-width protocol fields. Not changed."],
+    "14.4": ["Required", "Controlling expressions must be essentially Boolean", "Integer flags used as conditions. Not changed."],
+    "2.5": ["Advisory", "Unused macro", "Not changed."],
+    "20.5": ["Advisory", "Avoid #undef", "X-macro pattern. Not changed."],
+    "8.7": ["Advisory", "External linkage used in one file only", "Not changed."],
+    "10.8": ["Required", "Composite expression cast to a wider or different type", "Not changed."],
+    "20.7": ["Required", "Macro parameters in parentheses", "X-macro parameters used as names, where parentheses are not possible. Not changed."],
+    "17.8": ["Advisory", "Do not modify function parameters", "Not changed."],
+    "14.1": ["Required", "No floating-point loop counter", "Includes bm_wrap_pi, which can hang on a very large angle. See DEF-5. Open."],
+    "15.7": ["Required", "if ... else if ends with else", "Not changed."],
+    "20.10": ["Advisory", "Avoid # and ## operators", "X-macro pattern. Not changed."],
+    "13.3": ["Advisory", "Increment with no other side effect in the expression", "Index updates such as free_idx[nf++]. Not changed."],
+    "5.9": ["Advisory", "Internal-linkage identifiers should be unique", "Not changed."],
+    "2.2": ["Required", "No dead code", "One store at bmpc_mpc.c:176. Not reviewed further."],
+    "15.4": ["Advisory", "At most one break per loop", "Not changed."],
+    "11.5": ["Advisory", "Conversion from pointer to void", "Callback context pointer. Not changed."]
+  },
+  "other": {
+    "bugprone-implicit-widening-of-multiplication-result": "int index products used as pointer offsets. Bounded by BMPC_N_MAX = 32, far from overflow. Not changed.",
+    "clang-analyzer-deadcode.DeadStores": "Initial value of alpha in bmpc_post.c is always overwritten. Harmless. Not changed.",
+    "redundantInitialization": "Same alpha initialization as the dead store above.",
+    "variableScope": "Scope of j in bmpc_qp.c could be narrower. Style. Not changed.",
+    "bugprone-branch-clone": "Two branches with the same body: in bmpc_qp.c, fixed bounds and an active lower bound both fix the variable at the lower bound. In safety_ctrl.c, an empty else kept on purpose. Not changed."
+  }
+}

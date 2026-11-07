@@ -43,6 +43,7 @@ Data: 468 rows, 397 valid, 78 valid fault-free laps in judged conditions. Summar
 | DEF-2 | Safety controller missed bad steering commands | fixed, steps under 5 deg not detected | `test_integ_more.c:test_plaus` | 29 |
 | DEF-3 | Watchdog was disabled | fixed | **none linked** | 6 |
 | DEF-4 | Steering check can release during a fault and hold steering on recovery | open | **none linked** | 17 |
+| DEF-5 | bm_wrap_pi can loop forever on a very large angle | open, not reachable from normal CAN inputs | **none linked** | 0 |
 
 ## Known gaps
 
