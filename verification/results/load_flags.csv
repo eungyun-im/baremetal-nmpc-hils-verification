@@ -1,0 +1,21 @@
+condition,lap,flag,reason
+delay100_off,6,analysis_load_suspected,interim_analysis 0장: 22:40~23:11 분석과 시간대 겹침
+delay100_off,7,analysis_load_suspected,interim_analysis 0장: 22:40~23:11 분석과 시간대 겹침
+delay75_off,7,analysis_load_suspected,interim_analysis 0장: 터널 IMU 18.23 Hz 진행방향 오차 9.87 m
+delay75_off,8,analysis_load_suspected,interim_analysis 0장: IMU 18.87 Hz 진행방향 오차 7.34 m
+fault_driver_brake_slow,1,analysis_load_suspected,interim_analysis 0장: 23:15~23:33 재검증 추출 중 종료
+fault_veh_crc_slow,1,analysis_load_suspected,interim_analysis 0장: 23:15~23:33 재검증 추출 중 종료
+fault_bus_off_fast,1,analysis_load_suspected,interim_analysis 0장: 23:15~23:33 재검증 추출 중 종료
+fault_veh_crc_fast,1,analysis_load_suspected,interim_analysis 0장: 23:15~23:33 재검증 추출 중 종료
+fault_driver_brake_slow,2,npc_env_suspected,00:48 랩 자차 충돌 메시지 116건 최소 2.76 m
+fault_blackout_slow,2,npc_env_suspected,00:53 랩 먼 NPC 메시지 1592건 자차 0건
+fault_veh_loss_slow,2,npc_env_suspected,00:59 랩 먼 NPC 메시지 3672건 자차 0건
+ctrl_spike30_slow_on,5,npc_env_suspected,152400 랩 먼 NPC 메시지 2007건 자차 0건
+ctrl_spike30_slow_off,3,npc_env_suspected,152858 랩 먼 NPC 메시지 1914건 자차 0건
+qpfix_sqp2_qp4,3,npc_env_suspected,191040 랩 먼 NPC 메시지 2115건 자차 0건
+qpfix_sqp1_qp4,3,npc_env_suspected,190529 랩 자차 메시지 18건
+qpfix_sqp2_qp16,4,npc_env_suspected,192102 랩 먼 NPC 메시지 1962건 자차 0건
+qpfix_sqp2_qp16,5,npc_env_suspected,193123 랩 먼 NPC 메시지 1988건 자차 0건
+qpfix_sqp2_qp4,5,npc_env_suspected,193631 랩 먼 NPC 메시지 2098건 자차 0건
+plaus_step10_fast,2,npc_env_suspected,230435 랩 먼 NPC 메시지 1951건 자차 125건
+plaus_step6_slow,3,npc_env_suspected,230944 랩 먼 NPC 메시지 4454건 자차 0건

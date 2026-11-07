@@ -1,0 +1,11 @@
+transport: usbcan /dev/ttyUSB0 500 kbps, gap 1 ms, N=30 dt=0.050
+SQP 1 QP  2: 4144 requests, solve max 8.26 ms (random), total max 8.35 ms, rtt max 17.59 ms, iters max 2, QP cap 2958 (71.4%), other status 0, link errors 0, bound 7.2 ms
+SQP 1 QP  4: 4144 requests, solve max 9.68 ms (random), total max 9.77 ms, rtt max 18.99 ms, iters max 4, QP cap 2574 (62.1%), other status 0, link errors 0, bound 8.2 ms
+SQP 1 QP  8: 4144 requests, solve max 12.14 ms (random), total max 12.23 ms, rtt max 21.19 ms, iters max 8, QP cap 1923 (46.4%), other status 0, link errors 0, bound 10.3 ms
+SQP 1 QP 16: 4144 requests, solve max 16.39 ms (random), total max 16.49 ms, rtt max 25.56 ms, iters max 16, QP cap 1068 (25.8%), other status 0, link errors 0, bound 14.4 ms
+SQP 2 QP  2: 4144 requests, solve max 16.32 ms (random), total max 16.41 ms, rtt max 25.43 ms, iters max 4, QP cap 3195 (77.1%), other status 0, link errors 0, bound 14.4 ms
+SQP 2 QP  4: 4144 requests, solve max 19.11 ms (random), total max 19.20 ms, rtt max 28.01 ms, iters max 8, QP cap 2804 (67.7%), other status 0, link errors 0, bound 16.5 ms
+SQP 2 QP  8: 4144 requests, solve max 23.91 ms (random), total max 23.99 ms, rtt max 32.61 ms, iters max 16, QP cap 2380 (57.4%), other status 0, link errors 0, bound 20.6 ms
+SQP 2 QP 16: 4144 requests, solve max 30.82 ms (random), total max 30.90 ms, rtt max 39.78 ms, iters max 32, QP cap 1212 (29.2%), other status 0, link errors 1, bound 28.7 ms
+SQP 3 QP 16: 4144 requests, solve max 43.18 ms (random), total max 43.26 ms, rtt max 52.22 ms, iters max 48, QP cap 1128 (27.2%), other status 0, link errors 0, bound 43.1 ms
+RESULT: FAIL (1)

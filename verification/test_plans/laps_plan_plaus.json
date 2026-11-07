@@ -1,0 +1,99 @@
+[
+ {
+  "group": 9,
+  "name": "plaus_base",
+  "mode": "hils",
+  "laps": 5
+ },
+ {
+  "group": 9,
+  "name": "plaus_step10_slow",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [],
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "ctrl_offset 10 1000"
+  }
+ },
+ {
+  "group": 9,
+  "name": "plaus_step10_fast",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [],
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "ctrl_offset 10 1000"
+  }
+ },
+ {
+  "group": 9,
+  "name": "plaus_spike30_slow",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [],
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "ctrl_offset 30 50"
+  }
+ },
+ {
+  "group": 9,
+  "name": "plaus_spike30_fast",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [],
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "ctrl_offset 30 50"
+  }
+ },
+ {
+  "group": 9,
+  "name": "plaus_hold1s_slow",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [],
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "ctrl_hold 1000"
+  }
+ },
+ {
+  "group": 9,
+  "name": "plaus_hold1s_fast",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [],
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "ctrl_hold 1000"
+  }
+ },
+ {
+  "group": 9,
+  "name": "plaus_step6_slow",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [],
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "ctrl_offset 6 1000"
+  }
+ }
+]

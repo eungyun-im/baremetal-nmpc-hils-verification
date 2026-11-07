@@ -1,0 +1,4 @@
+transport: usbcan /dev/ttyUSB0 500 kbps, gap 1 ms, N=30 dt=0.050
+SQP 1 QP  4: 4144 requests, solve max 9.42 ms (random), total max 9.51 ms, rtt max 18.75 ms, iters max 4, QP cap 2538 (61.2%), other status 0, link errors 0, bound 8.2 ms
+SQP 2 QP 16: 4144 requests, solve max 29.54 ms (random), total max 29.63 ms, rtt max 38.44 ms, iters max 32, QP cap 1207 (29.1%), other status 0, link errors 0, bound 28.7 ms
+RESULT: PASS

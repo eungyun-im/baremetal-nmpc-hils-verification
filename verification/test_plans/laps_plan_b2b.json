@@ -1,0 +1,30 @@
+[
+ {
+  "group": 1,
+  "name": "b2b_hils_safety",
+  "mode": "hils",
+  "laps": 5,
+  "args": [
+   "highway_max_mps:=20.0"
+  ]
+ },
+ {
+  "group": 1,
+  "name": "b2b_hils_nosafety",
+  "mode": "hils",
+  "laps": 5,
+  "args": [
+   "highway_max_mps:=20.0",
+   "safety:=false"
+  ]
+ },
+ {
+  "group": 1,
+  "name": "b2b_sils",
+  "mode": "sils",
+  "laps": 5,
+  "args": [
+   "highway_max_mps:=20.0"
+  ]
+ }
+]

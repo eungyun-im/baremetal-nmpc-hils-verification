@@ -1,0 +1,318 @@
+diff -ru '--exclude=*.o' source_before_20261106/core/include/bmpc/bmpc_qp.h v2c/core/include/bmpc/bmpc_qp.h
+--- source_before_20261106/core/include/bmpc/bmpc_qp.h	2026-11-04 14:44:30.000000000 +0900
++++ v2c/core/include/bmpc/bmpc_qp.h	2026-11-06 17:51:42.151399980 +0900
+@@ -1,8 +1,9 @@
+ /* 상하한 제약만 있는 볼록 QP:  min 1/2 x'Px + q'x,  lb <= x <= ub  (P 대칭 양정치).
+  *
+  * primal active-set: 고정된 변수 집합(working set)을 두고 나머지로 Newton 스텝을 푼다.
+- * 스텝이 경계에 막히면 그 변수를 고정하고, 스텝이 0 이면 라그랑주 승수가 가장 음수인
+- * 변수 하나를 푼다. P 가 양정치면 유한 번 안에 끝난다. 동적 메모리는 쓰지 않는다. */
++ * 스텝이 경계에 막히면 그 변수를 고정하고 (길이 0 으로 막히면 같은 스텝에서 길이 0 인 변수를 모두 고정),
++ * 스텝이 0 이면 라그랑주 승수가 가장 음수인 변수 하나를 푼다. 반복마다 부분 문제 풀이는 많아야 한 번이다.
++ * P 가 양정치면 유한 번 안에 끝난다. 동적 메모리는 쓰지 않는다. */
+ #ifndef BMPC_QP_H
+ #define BMPC_QP_H
+ 
+diff -ru '--exclude=*.o' source_before_20261106/core/src/bmpc_qp.c v2c/core/src/bmpc_qp.c
+--- source_before_20261106/core/src/bmpc_qp.c	2026-11-04 14:44:30.000000000 +0900
++++ v2c/core/src/bmpc_qp.c	2026-11-06 18:17:36.193824094 +0900
+@@ -226,18 +226,34 @@
+         x[r] = bm_clamp(x[r] + alpha * w->d[k], lb[r], ub[r]);
+       }
+       if (blk >= 0) {
+-        x[blk] = blk_side > 0 ? ub[blk] : lb[blk];
+-        w->ws[blk] = blk_side;
+-        if (factored) {
+-          BMPC_PROF_BEGIN(t_rem);
+-          if (chol_remove(w, nf, blk_pos) != 0) factored = 0;
+-          BMPC_PROF_END(BMPC_PROF_CHOL, t_rem);
++        /* alpha == 0 이면 x 는 그대로이고, 같은 d 로 길이 0 인 바깥 스텝을 가진 변수도 한 번에 고정한다 (풀이는 다음 반복에 한 번).
++         * 방금 푼 변수는 blk 일 때만 고정한다 (아래 종료 규칙). 뒤에서부터 빼야 앞쪽 위치와 d 의 순서가 유지된다. */
++        const int batch = alpha == 0 && blk != last_released;
++        for (k = nf - 1; k >= 0; --k) {
++          const int r = w->free_idx[k];
++          signed char side = 0;
++          int j;
++          if (k == blk_pos) side = blk_side;
++          else if (batch && r != last_released) {
++            if (w->d[k] > 0 && x[r] >= ub[r] && x[r] + w->d[k] > ub[r]) side = 1;
++            else if (w->d[k] < 0 && x[r] <= lb[r] && x[r] + w->d[k] < lb[r]) side = -1;
++          }
++          if (side == 0) continue;
++          x[r] = side > 0 ? ub[r] : lb[r];
++          w->ws[r] = side;
++          if (factored) {
++            BMPC_PROF_BEGIN(t_rem);
++            if (chol_remove(w, nf, k) != 0) factored = 0;
++            BMPC_PROF_END(BMPC_PROF_CHOL, t_rem);
++          }
++          if (!factored)
++            for (j = k; j < nf - 1; ++j) w->free_idx[j] = w->free_idx[j + 1];
++          --nf;
+         }
+-        if (!factored)
+-          for (k = blk_pos; k < nf - 1; ++k) w->free_idx[k] = w->free_idx[k + 1];
+-        --nf;
+         /* 방금 푼 변수가 움직이지 못하고 바로 다시 막히면 정밀도 한계: 지금 점을 해로 본다 */
+         if (blk == last_released && alpha <= step_tol) return BMPC_OK;
++        /* 막혔으면 "방금 푼 변수" 가 아니다. 남겨 두면 뒤의 막힘이 승수 확인 없이 위 규칙으로 끝날 수 있다 */
++        last_released = -1;
+       } else {
+         sub_solved = 1;
+       }
+diff -ru '--exclude=*.o' source_before_20261106/test/test_qp_more.c v2c/test/test_qp_more.c
+--- source_before_20261106/test/test_qp_more.c	2026-11-05 21:31:14.490251894 +0900
++++ v2c/test/test_qp_more.c	2026-11-06 18:17:46.114032315 +0900
+@@ -25,8 +25,8 @@
+  *   - 실제 규모의 KKT: lambda_tol 에 자유 변수 항 n pmax step_tol (1 + |x|) 를 더한다 (bmpc_qp.c:166 의 정지 규칙에서 유도).
+  *
+  * 이 파일이 일부러 고정하지 않는 것: 결함으로 보는 동작은 통과 시험에 넣지 않고 after_qp/repro_*.c 에 둔다
+- * (bmpc_qp.c:240 의 거짓 OK 두 경로, 고정 변수의 Inf q, float lambda_tol, 0 길이 스텝의 정체, SQP status 가 지워지지 않는 것).
+- * 0 길이 스텝을 고쳐도 test_mpc_* 는 통과해야 한다: 기대값이 QP 직접 호출에서 나오므로 함께 바뀐다.
++ * (bmpc_qp.c:254 의 거짓 OK 두 경로, 고정 변수의 Inf q, float lambda_tol, SQP status 가 지워지지 않는 것).
++ * 0 길이 스텝은 test_zero_step_batch 가 고정한다. test_mpc_* 의 기대값은 QP 직접 호출에서 나오므로 함께 바뀐다.
+  * 단 처음 working set 규칙 (bmpc_qp.c:136 주석, 기울기 0 은 바깥이 아니다) 을 바꾸는 수정은 그 규칙을 고정한 칸에 걸린다. 주석이 바뀌는 수정이므로 함께 고친다. */
+ #include <float.h>
+ #include <math.h>
+@@ -290,7 +290,7 @@
+   }
+ }
+ 
+-/* 규칙 기준기: 헤더(bmpc_qp.h:3-5)와 주석(bmpc_qp.c:136, 197, 239)의 규칙을 그대로 따르는 단순한 active-set.
++/* 규칙 기준기: 헤더(bmpc_qp.h:3-5)와 주석(bmpc_qp.c:136, 197, 253)의 규칙을 그대로 따르는 단순한 active-set.
+  * 매 반복 가우스 소거로 풀고 double 로 계산한다. 인수 갱신과 코드를 공유하지 않지만, 규칙은 솔버와 같으므로
+  * 규칙 자체의 옳음을 보여 주지는 않는다 (그건 열거와 KKT 가 본다). 동률은 F 의 앞쪽을 택한다. */
+ #define REF_KMAX 400
+@@ -404,11 +404,23 @@
+         x[r] = fmin(fmax(x[r] + alpha * g_rb[k], (double)p->lb[r]), (double)p->ub[r]);
+       }
+       if (blk >= 0) {
+-        x[blk] = side > 0 ? (double)p->ub[blk] : (double)p->lb[blk];
+-        ws[blk] = side;
+-        ++g_ref.updates;
+-        for (k = pos; k < nf - 1; ++k) F[k] = F[k + 1];
+-        --nf;
++        /* alpha == 0: 같은 d 로 길이 0 인 바깥 스텝을 가진 다른 변수도 함께 고정한다 (방금 푼 변수는 blk 일 때만) */
++        const int batch = alpha == 0 && blk != last_rel;
++        for (k = nf - 1; k >= 0; --k) {
++          const int r = F[k];
++          int s = 0;
++          if (k == pos) s = side;
++          else if (batch && r != last_rel) {
++            if (g_rb[k] > 0 && x[r] >= (double)p->ub[r] && x[r] + g_rb[k] > (double)p->ub[r]) s = 1;
++            else if (g_rb[k] < 0 && x[r] <= (double)p->lb[r] && x[r] + g_rb[k] < (double)p->lb[r]) s = -1;
++          }
++          if (s == 0) continue;
++          x[r] = s > 0 ? (double)p->ub[r] : (double)p->lb[r];
++          ws[r] = s;
++          ++g_ref.updates;
++          for (j = k; j < nf - 1; ++j) F[j] = F[j + 1];
++          --nf;
++        }
+         if (blk == last_rel && alpha <= stol) {
+           g_ref.K = it + 1;
+           g_ref.status = BMPC_OK;
+@@ -850,7 +862,7 @@
+   CHECK(g_w.ws[0] == -1 && g_w.ws[1] == 0, "blocked variable goes to the lower set");
+ 
+   /* 경계에서 기울기 0 인 변수가 있는 문제: x0 = 0, P=[2,1;1,2], q=(-3,0), 해 (1.5, 0). 진전 약속은 없으므로 (bmpc_types.h:33)
+-   * 상한에서는 상태, 범위, 목적함수만 본다. 첫 반복이 x 를 옮기지 않는 현재 동작은 after_qp/repro_zero_step_cap.c 에 있다. */
++   * 상한에서는 상태, 범위, 목적함수만 본다. 첫 반복이 바깥 스텝을 고정하는 동작은 test_zero_step_batch 가 본다. */
+   set2(p, 2, 1, 2, -3, 0, 0, 10, 0, 10);
+   x0[0] = 0;
+   x0[1] = 0;
+@@ -862,6 +874,158 @@
+   CHECK(st == BMPC_OK && NEAR(p->x[0], 1.5) && p->x[1] == 0, "uncapped: st %d x %g %g", st, (double)p->x[0], (double)p->x[1]);
+ }
+ 
++/* [고정] 길이 0 스텝의 한꺼번 고정 (bmpc_qp.c 의 alpha == 0 경로). 기대값은 손으로 푼다.
++ * P = 2I + 11' 이면 P^-1 = (I - 11'/(n+2))/2. q 가 일부만 -1 이면 움직이는 변수 m 개의 해는 x = 1/(m+2), 나머지의 Newton 스텝은 음수다.
++ * 첫 반복이 바깥 스텝을 가진 변수를 전부 고정하고, 두 번째 반복이 움직이고, 세 번째 반복이 확인한다. 풀이는 반복마다 한 번이다. */
++static void set_2i11(prob_t *p, int n, const signed char *mover, const signed char *sign, bmpc_real inward, bmpc_real *x0)
++{
++  int i, j;
++  prob_begin(p, n);
++  for (i = 0; i < n; ++i) {
++    const int si = sign ? sign[i] : 1;
++    for (j = 0; j < n; ++j) {
++      const int sj = sign ? sign[j] : 1;
++      p->P[i * n + j] = R(si * sj * ((i == j ? 2 : 0) + 1));
++    }
++    p->q[i] = mover[i] ? R(-si) : R(si) * (-inward);
++    p->lb[i] = si > 0 ? R(0) : R(-10);
++    p->ub[i] = si > 0 ? R(10) : R(0);
++    x0[i] = 0;
++  }
++}
++
++static void check_batch(prob_t *p, const bmpc_real *x0, const signed char *mover, const signed char *sign, const char *tag)
++{
++  const int n = p->n;
++  int it, st, i, m = 0, nf = 0;
++  for (i = 0; i < n; ++i) m += mover[i] ? 1 : 0;
++  /* 상한 1: x 는 그대로, 움직이지 못하는 변수는 전부 제 경계에 고정, F 는 원래 순서, 인수는 F 의 것 */
++  st = solve(p, x0, 1, &it);
++  CHECK(st == BMPC_ERR_MAXITER && it == 1, "%s cap 1: st %d it %d", tag, st, it);
++  for (i = 0; i < n; ++i) {
++    const int want = mover[i] ? 0 : ((sign && sign[i] < 0) ? 1 : -1);
++    CHECK(p->x[i] == 0, "%s cap 1: x[%d]=%g", tag, i, (double)p->x[i]);
++    CHECK(g_w.ws[i] == want, "%s cap 1: ws[%d]=%d want %d", tag, i, g_w.ws[i], want);
++    if (mover[i]) {
++      CHECK(g_w.free_idx[nf] == i, "%s cap 1: free_idx[%d]=%d want %d", tag, nf, g_w.free_idx[nf], i);
++      ++nf;
++    }
++  }
++  check_factor(p, tag);
++#ifdef BMPC_PROFILE
++  CHECK((int)bmpc_prof[BMPC_PROF_CHOL] == 1 + (n - m), "%s cap 1: %u factor sections, want 1 solve + %d removals", tag,
++        (unsigned)bmpc_prof[BMPC_PROF_CHOL], n - m);
++#endif
++  /* 상한 2: 이미 해. 상한 2 에서 움직인다는 것이 이 수정의 목적이다 */
++  st = solve(p, x0, 2, &it);
++  CHECK(st == BMPC_ERR_MAXITER && it == 2, "%s cap 2: st %d it %d", tag, st, it);
++  for (i = 0; i < n; ++i) {
++    const double si = sign ? (double)sign[i] : 1.0;
++    const double want = mover[i] ? si / (double)(m + 2) : 0.0;
++    CHECK(fabs((double)p->x[i] - want) <= REF_TOL(want), "%s cap 2: x[%d]=%.9g want %.9g", tag, i, (double)p->x[i], want);
++  }
++  check_factor(p, tag);
++#ifdef BMPC_PROFILE
++  CHECK((int)bmpc_prof[BMPC_PROF_GRAD] == 2, "%s cap 2: %u gradients", tag, (unsigned)bmpc_prof[BMPC_PROF_GRAD]);
++  CHECK((int)bmpc_prof[BMPC_PROF_CHOL] == 2 + (n - m), "%s cap 2: %u factor sections, want 2 solves + %d removals", tag,
++        (unsigned)bmpc_prof[BMPC_PROF_CHOL], n - m);
++#endif
++  st = solve(p, x0, 3, &it);
++  CHECK(st == BMPC_OK && it == 3, "%s cap 3: st %d it %d", tag, st, it);
++  check_factor(p, tag);
++}
++
++/* 묶어서 고정한 뒤 오래된 last_released 로 승수 확인 없이 끝나면 안 된다 (f = 4, kkt = 5 인 거짓 OK 였다) */
++static void test_stale_last_released(void)
++{
++  static bmpc_qp_work_t w;
++  bmpc_real P[16] = {1, 0, -1, 0, 0, 1, 0, 1, -1, 0, 2, -2, 0, 1, -2, 6};
++  bmpc_real q[4] = {-6, -2, 1, 3}, lb[4] = {-1, -1, -2, 0}, ub[4] = {0, 2, 2, 2}, x[4] = {-1, 2, 2, 2};
++  int iters = 0;
++  const int st = bmpc_boxqp_solve(4, P, q, lb, ub, x, 800, &w, &iters);
++  CHECK(st == BMPC_OK, "status %d", st);
++  CHECK(bmpc_boxqp_kkt_residual(4, P, q, lb, ub, x) < (bmpc_real)1e-3, "kkt");
++  CHECK(x[2] < (bmpc_real)0, "x2 %g", (double)x[2]);
++}
++
++static void test_zero_step_batch(void)
++{
++  prob_t *p = &g_p;
++  bmpc_real x0[NMAX + 2];
++  int it, st;
++  printf("[qp: zero-length steps fixed together]\n");
++  {
++    /* 앞 변수만 움직인다: 기울기 정확히 0 */
++    static const signed char mv[6] = {1, 0, 0, 0, 0, 0};
++    set_2i11(p, 6, mv, NULL, R(0), x0);
++    check_batch(p, x0, mv, NULL, "front mover, g = 0");
++    /* 기울기가 안쪽이어도 Newton 스텝이 바깥이면 같다: d_i = 0.005 - 1.05/16 < 0 */
++    set_2i11(p, 6, mv, NULL, R(0.01), x0);
++    check_batch(p, x0, mv, NULL, "front mover, inward g");
++  }
++  {
++    /* 뒤쪽 변수가 움직인다: 빠지는 위치가 남는 변수보다 앞이라 chol_remove 가 실제로 갱신한다 */
++    static const signed char mv[8] = {0, 0, 0, 1, 1, 1, 1, 1};
++    set_2i11(p, 8, mv, NULL, R(0), x0);
++    check_batch(p, x0, mv, NULL, "back movers");
++  }
++  {
++    /* 번갈아: 앞에서부터 빼면 위치와 d 가 어긋난다 */
++    static const signed char mv[9] = {0, 1, 0, 1, 0, 1, 0, 1, 0};
++    set_2i11(p, 9, mv, NULL, R(0), x0);
++    check_batch(p, x0, mv, NULL, "interleaved");
++  }
++  {
++    /* 하한과 상한이 섞인다: 부호를 뒤집은 같은 문제 */
++    static const signed char mv[7] = {0, 1, 0, 0, 1, 0, 0};
++    static const signed char sg[7] = {1, -1, -1, 1, 1, -1, 1};
++    set_2i11(p, 7, mv, sg, R(0), x0);
++    check_batch(p, x0, mv, sg, "both sides");
++  }
++  /* 2x2 손 계산: 상한 2 에서 해 (1.5, 0) */
++  set2(p, 2, 1, 2, -3, 0, 0, 10, 0, 10);
++  x0[0] = 0;
++  x0[1] = 0;
++  st = solve(p, x0, 2, &it);
++  CHECK(st == BMPC_ERR_MAXITER && NEAR(p->x[0], 1.5) && p->x[1] == 0, "2x2 cap 2: st %d x %g %g", st, (double)p->x[0], (double)p->x[1]);
++  /* 같은 판정: 반올림 크기로 미는 변수는 함께 고정하지 않는다 (x + d 가 실제로 넘을 때만). a 는 상한, d_a 는 약 1e-20, b 는 진짜 바깥 */
++  prob_begin(p, 3);
++  {
++    static const double PP[9] = {1, 0, -1e-20, 0, 2, 1, -1e-20, 1, 2};
++    int i;
++    for (i = 0; i < 9; ++i) p->P[i] = R(PP[i]);
++    p->q[0] = R(-1);
++    p->q[1] = 0;
++    p->q[2] = R(-1);
++    p->lb[0] = R(-5);
++    p->ub[0] = R(1);
++    p->lb[1] = 0;
++    p->ub[1] = R(10);
++    p->lb[2] = R(-10);
++    p->ub[2] = R(10);
++    x0[0] = R(1);
++    x0[1] = 0;
++    x0[2] = 0;
++  }
++  st = solve(p, x0, 1, &it);
++  CHECK(st == BMPC_ERR_MAXITER && g_w.ws[0] == 0 && g_w.ws[1] == -1 && g_w.ws[2] == 0, "rounding push: ws %d %d %d", g_w.ws[0], g_w.ws[1], g_w.ws[2]);
++  /* 거울상: a 는 하한, d_a 는 약 -1e-20 */
++  p->P[2] = p->P[6] = R(1e-20);
++  p->q[0] = R(1);
++  p->lb[0] = R(-1);
++  p->ub[0] = R(5);
++  x0[0] = R(-1);
++  st = solve(p, x0, 1, &it);
++  CHECK(st == BMPC_ERR_MAXITER && g_w.ws[0] == 0 && g_w.ws[1] == -1 && g_w.ws[2] == 0, "rounding push, lower: ws %d %d %d", g_w.ws[0], g_w.ws[1], g_w.ws[2]);
++  /* 한꺼번에 빼도 인수를 버리지 않는다: 다음 풀이가 재분해면 이 경로의 시간 근거가 사라진다. 갱신한 인수는 새 분해와 비트까지 같지 않다 */
++  {
++    static const signed char mv[11] = {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1};
++    set_2i11(p, 11, mv, NULL, R(0), x0);
++    st = solve(p, x0, 2, &it);
++    CHECK(st == BMPC_ERR_MAXITER && !factor_is_fresh(p), "batch kept the updated factor: st %d fresh %d", st, factor_is_fresh(p));
++  }
++}
++
+ /* [고정] 처음 working set (bmpc_qp.c:136): 상한 0 으로 ws 를 직접 본다. */
+ static void test_initial_working_set(void)
+ {
+@@ -1480,7 +1644,7 @@
+         (double)p->x[0], (double)p->x[1], (double)p->x[2]);
+ }
+ 
+-/* 인수 갱신이 실패해도 재분해로 복구한다 (bmpc_qp.c:62-63, 233, 236-237). 양정치 P 에서 이 길은 대각이 표현 가능한 최댓값일 때만
++/* 인수 갱신이 실패해도 재분해로 복구한다 (bmpc_qp.c:62-63, 246, 249-250). 양정치 P 에서 이 길은 대각이 표현 가능한 최댓값일 때만
+  * 열린다: lkk^2 + x^2 가 반올림으로 무한대가 되고 다음 회전에서 NaN. 이 시드들은 double, float 양쪽에서 그 길을 지나는 것을
+  * 계측한 사본으로 확인했다. 시험은 결과만 본다: 기준기와 같은 반복점, status OK, KKT. 다른 빌드 옵션에서 이 길을 안 지나도 통과한다. */
+ static void test_remove_failure_recovery(void)
+@@ -1526,7 +1690,7 @@
+   g_seed = keep;
+ }
+ 
+-/* [고정] 방금 푼 변수가 바로 막히면 정밀도 한계로 보고 끝낸다 (bmpc_qp.c:239-240, alpha <= step_tol 포함).
++/* [고정] 방금 푼 변수가 바로 막히면 정밀도 한계로 보고 끝낸다 (bmpc_qp.c:253-254, alpha <= step_tol 포함).
+  * P=[1,-1;-1,2], q=(-1,0.5): x1 -> 1, g2 = -0.5 라 x2 를 푼다. L = [1;-1,1] 이라 d = (0.5, 0.5) 가 정확하다.
+  * x2 의 폭이 w = 0.5 step_tol 이면 비율 = step_tol, 끝. 폭이 그 두 배면 계속 간다. */
+ static void test_release_precision_exit(void)
+@@ -1617,7 +1781,7 @@
+   printf("  after a block %d of %d, after a release %d of %d\n", g_block_used, g_block_seen, g_rel_used, g_rel_seen);
+ }
+ 
+-/* 스텝 클램프 (bmpc_qp.c:226): 막는 변수는 경계로 옮겨 놓지만 (:229), 거의 같은 비율의 다른 변수는 x + alpha d 가 반올림으로 경계를 넘을 수 있다.
++/* 스텝 클램프 (bmpc_qp.c:226): 막는 변수는 경계로 옮겨 놓지만 (:242), 거의 같은 비율의 다른 변수는 x + alpha d 가 반올림으로 경계를 넘을 수 있다.
+  * 비율이 이진 유리수가 아닌 거의 동률 문제. 넘는 사례가 실제로 생기는지 시험 안에서 같은 연산으로 세고, 범위는 정확히 본다. */
+ static void test_step_clamp(void)
+ {
+@@ -2326,6 +2490,8 @@
+   test_enumeration_oracle();
+   test_cap_hand();
+   test_cap_grid();
++  test_zero_step_batch();
++  test_stale_last_released();
+   test_initial_working_set();
+   test_warm_start();
+   test_fixed_variables();

@@ -1,0 +1,327 @@
+[
+ {
+  "group": 1,
+  "name": "hils_base",
+  "mode": "hils",
+  "laps": 10
+ },
+ {
+  "group": 1,
+  "name": "sils_base",
+  "mode": "sils",
+  "laps": 10
+ },
+ {
+  "group": 2,
+  "name": "sqp1_qp10",
+  "mode": "hils",
+  "laps": 5,
+  "args": [
+   "sqp_iters:=1",
+   "qp_max_iters:=10"
+  ]
+ },
+ {
+  "group": 2,
+  "name": "sqp1_qp16",
+  "mode": "hils",
+  "laps": 5,
+  "args": [
+   "sqp_iters:=1",
+   "qp_max_iters:=16"
+  ]
+ },
+ {
+  "group": 2,
+  "name": "sqp2_qp10",
+  "mode": "hils",
+  "laps": 5,
+  "args": [
+   "sqp_iters:=2",
+   "qp_max_iters:=10"
+  ]
+ },
+ {
+  "group": 2,
+  "name": "sqp3_qp10",
+  "mode": "hils",
+  "laps": 5,
+  "args": [
+   "sqp_iters:=3",
+   "qp_max_iters:=10"
+  ]
+ },
+ {
+  "group": 2,
+  "name": "sqp3_qp16",
+  "mode": "hils",
+  "laps": 5,
+  "args": [
+   "sqp_iters:=3",
+   "qp_max_iters:=16"
+  ]
+ },
+ {
+  "group": 3,
+  "name": "delay0_on",
+  "mode": "hils",
+  "laps": 5,
+  "args": [
+   "cmd_delay_s:=0.0",
+   "delay_comp:=true",
+   "dc_max_s:=0.25"
+  ]
+ },
+ {
+  "group": 3,
+  "name": "delay25_on",
+  "mode": "hils",
+  "laps": 5,
+  "args": [
+   "cmd_delay_s:=0.025",
+   "delay_comp:=true",
+   "dc_max_s:=0.25"
+  ]
+ },
+ {
+  "group": 3,
+  "name": "delay50_on",
+  "mode": "hils",
+  "laps": 5,
+  "args": [
+   "cmd_delay_s:=0.05",
+   "delay_comp:=true",
+   "dc_max_s:=0.25"
+  ]
+ },
+ {
+  "group": 3,
+  "name": "delay75_on",
+  "mode": "hils",
+  "laps": 5,
+  "args": [
+   "cmd_delay_s:=0.075",
+   "delay_comp:=true",
+   "dc_max_s:=0.25"
+  ]
+ },
+ {
+  "group": 3,
+  "name": "delay100_on",
+  "mode": "hils",
+  "laps": 5,
+  "args": [
+   "cmd_delay_s:=0.1",
+   "delay_comp:=true",
+   "dc_max_s:=0.25"
+  ]
+ },
+ {
+  "group": 3,
+  "name": "delay0_off",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "args": [
+   "cmd_delay_s:=0.0",
+   "delay_comp:=false",
+   "dc_max_s:=0.25"
+  ]
+ },
+ {
+  "group": 3,
+  "name": "delay25_off",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "args": [
+   "cmd_delay_s:=0.025",
+   "delay_comp:=false",
+   "dc_max_s:=0.25"
+  ]
+ },
+ {
+  "group": 3,
+  "name": "delay50_off",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "args": [
+   "cmd_delay_s:=0.05",
+   "delay_comp:=false",
+   "dc_max_s:=0.25"
+  ]
+ },
+ {
+  "group": 3,
+  "name": "delay75_off",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "args": [
+   "cmd_delay_s:=0.075",
+   "delay_comp:=false",
+   "dc_max_s:=0.25"
+  ]
+ },
+ {
+  "group": 3,
+  "name": "delay100_off",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "args": [
+   "cmd_delay_s:=0.1",
+   "delay_comp:=false",
+   "dc_max_s:=0.25"
+  ]
+ },
+ {
+  "group": 4,
+  "name": "fault_req_crc_slow",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "req_crc 2"
+  }
+ },
+ {
+  "group": 4,
+  "name": "fault_req_crc_fast",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "req_crc 2"
+  }
+ },
+ {
+  "group": 4,
+  "name": "fault_veh_crc_slow",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "veh_crc 3"
+  }
+ },
+ {
+  "group": 4,
+  "name": "fault_veh_crc_fast",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "veh_crc 3"
+  }
+ },
+ {
+  "group": 4,
+  "name": "fault_veh_loss_slow",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "veh_loss 0.6"
+  }
+ },
+ {
+  "group": 4,
+  "name": "fault_veh_loss_fast",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "veh_loss 0.6"
+  }
+ },
+ {
+  "group": 4,
+  "name": "fault_driver_brake_slow",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "driver_brake 0.5 1.5"
+  }
+ },
+ {
+  "group": 4,
+  "name": "fault_driver_brake_fast",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "driver_brake 0.5 1.5"
+  }
+ },
+ {
+  "group": 4,
+  "name": "fault_blackout_slow",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "blackout 0.35",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 4,
+  "name": "fault_blackout_fast",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "blackout 0.35",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 4,
+  "name": "fault_bus_off_slow",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "bus_off 0.5",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 4,
+  "name": "fault_bus_off_fast",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "bus_off 0.5",
+   "reset_after": 3.0
+  }
+ }
+]

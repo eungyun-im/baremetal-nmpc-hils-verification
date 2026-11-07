@@ -1,0 +1,15 @@
+c,a,sec,gps_err,ekf_err,ekf_gps_gap,v
+sils_base,6,EXIT,1.75,0.19,7.77,1.0
+hils_base,7,EXIT,2.81,0.47,3.54,14.1
+sils_base,8,EXIT,3.56,0.52,4.48,14.9
+hils_base,9,EXIT,2.49,0.17,5.27,8.3
+sils_base,9,EXIT,1.28,0.18,4.68,5.9
+sils_base,10,EXIT,2.28,0.29,6.86,5.1
+hils_base,10,EXIT,1.92,0.32,7.98,2.1
+sils_base,11,EXIT,3.1,0.43,4.14,15.0
+hils_base,11,M8,1.16,0.23,6.33,4.5
+sils_base,12,M8,1.76,0.21,7.93,6.8
+delay75_on,4,M6,2.03,1.92,0.35,6.5
+delay0_on,5,M2,0.93,0.91,0.21,2.7
+hils_base_recheck,4,M6,2.08,2.07,0.29,11.7
+hook_base_newbridge,3,M6,1.59,1.52,0.31,13.4

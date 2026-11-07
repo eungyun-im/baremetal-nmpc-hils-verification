@@ -1,0 +1,6 @@
+rows 465 valid 395 hils 436 sils 29
+invalid reasons {'sim_stale': 2, 'manual_stop': 1, 'ekf_diverged': 32, 'sim_gap': 14, 'no_start': 2, 'stalled': 5, 'no_inject': 14}
+base laps n=38 solve_max max=21.53 median=21.15
+load vs rtt_max spearman 0.086 p=0.09687 n=370; load vs solve_max 0.085 p=0.1009
+HILS vs SILS err_gps_mean median 0.085 (n=10) vs 0.073 (n=17), MWU p=0.4074
+no NPC err_gps_mean [0.068, 0.054, 0.082, 0.061, 0.058]

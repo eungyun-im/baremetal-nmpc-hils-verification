@@ -1,0 +1,68 @@
+[
+ {
+  "group": 6,
+  "name": "sqp1_qp2",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "args": [
+   "sqp_iters:=1",
+   "qp_max_iters:=2"
+  ]
+ },
+ {
+  "group": 6,
+  "name": "sqp1_qp4",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "args": [
+   "sqp_iters:=1",
+   "qp_max_iters:=4"
+  ]
+ },
+ {
+  "group": 6,
+  "name": "sqp1_qp8",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "args": [
+   "sqp_iters:=1",
+   "qp_max_iters:=8"
+  ]
+ },
+ {
+  "group": 6,
+  "name": "sqp2_qp2",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "args": [
+   "sqp_iters:=2",
+   "qp_max_iters:=2"
+  ]
+ },
+ {
+  "group": 6,
+  "name": "sqp2_qp4",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "args": [
+   "sqp_iters:=2",
+   "qp_max_iters:=4"
+  ]
+ },
+ {
+  "group": 6,
+  "name": "sqp2_qp8",
+  "mode": "hils",
+  "laps": 5,
+  "dnf_is_result": true,
+  "args": [
+   "sqp_iters:=2",
+   "qp_max_iters:=8"
+  ]
+ }
+]

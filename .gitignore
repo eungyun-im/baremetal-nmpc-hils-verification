@@ -1,0 +1,6 @@
+*.bag
+*.bag.active
+build/
+*.elf
+*.bin
+__pycache__/

@@ -1,0 +1,1 @@
+[{"group": 4, "name": "fault_bus_off_hispeed", "mode": "hils", "laps": 5, "dnf_is_result": true, "fault": {"csv": 3, "index": 3000, "min_v": 20.0, "cmd": "bus_off 0.5", "reset_after": 3.0}}]

@@ -1,0 +1,1 @@
+[{"group": 12, "name": "wdt_hang_slow", "mode": "hils", "laps": 3, "dnf_is_result": true, "args": [], "fault": {"csv": 0, "index": 1400, "cmd": "wdt_hang"}}, {"group": 12, "name": "wdt_hang_fast", "mode": "hils", "laps": 2, "dnf_is_result": true, "args": [], "fault": {"csv": 3, "index": 3000, "cmd": "wdt_hang"}}]

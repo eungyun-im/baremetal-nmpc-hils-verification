@@ -1,0 +1,21 @@
+cfg fw core m5w emax>0.8 cap
+sqp1_qp2 before core (0.0622, 0.0061, 4) m5w (0.1686, 0.0693, 4) emax>.8 1 / 6 cap 0.0807
+sqp1_qp2 after core (0.0543, 0.0029, 6) m5w (0.0659, 0.0077, 6) emax>.8 3 / 6 cap 0.0422
+sqp1_qp4 before core (0.0621, 0.0066, 6) m5w (0.1418, 0.056, 6) emax>.8 5 / 6 cap 0.0568
+sqp1_qp4 after core (0.0543, 0.0023, 6) m5w (0.0638, 0.0143, 6) emax>.8 4 / 6 cap 0.0201
+sqp2_qp4 before core (0.0624, 0.0062, 6) m5w (0.148, 0.0399, 6) emax>.8 4 / 6 cap 0.0611
+sqp2_qp4 after core (0.0608, 0.0137, 6) m5w (0.0702, 0.0167, 6) emax>.8 2 / 6 cap 0.0185
+sqp2_qp16 before core (0.0567, 0.0029, 6) m5w (0.0719, 0.0105, 6) emax>.8 5 / 6 cap 0.0166
+sqp2_qp16 after core (0.0537, 0.0008, 5) m5w (0.0668, 0.0079, 5) emax>.8 0 / 6 cap 0.0104
+paired after-before by block (finished both)
+sqp1_qp2 n 4 core d -0.0071 p 0.25 m5w d -0.1002 p 0.125
+sqp1_qp4 n 6 core d -0.0078 p 0.062 m5w d -0.078 p 0.031
+sqp2_qp4 n 6 core d -0.0015 p 0.938 m5w d -0.0778 p 0.062
+sqp2_qp16 n 5 core d -0.0028 p 0.125 m5w d -0.0027 p 0.75
+pooled n 21 core d -0.0047 p 0.0571 neg 16 | m5w d -0.0642 p 0.0001 neg 17
+before sqp1_qp2 vs qp16 core 0.0055 m5w 0.0967
+before sqp1_qp4 vs qp16 core 0.0053 m5w 0.0699
+before sqp2_qp4 vs qp16 core 0.0056 m5w 0.0762
+after sqp1_qp2 vs qp16 core 0.0006 m5w -0.0008
+after sqp1_qp4 vs qp16 core 0.0006 m5w -0.003
+after sqp2_qp4 vs qp16 core 0.0071 m5w 0.0034

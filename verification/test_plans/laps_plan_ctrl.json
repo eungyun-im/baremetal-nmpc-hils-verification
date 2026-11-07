@@ -1,0 +1,182 @@
+[
+ {
+  "group": 1,
+  "name": "hook_base",
+  "mode": "hils",
+  "laps": 5
+ },
+ {
+  "group": 1,
+  "name": "hook_base_newbridge",
+  "mode": "hils",
+  "laps": 3
+ },
+ {
+  "group": 2,
+  "name": "ctrl_spike30_slow_on",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [],
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "ctrl_offset 30 50"
+  }
+ },
+ {
+  "group": 2,
+  "name": "ctrl_spike30_slow_off",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [
+   "safety:=false"
+  ],
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "ctrl_offset 30 50"
+  }
+ },
+ {
+  "group": 2,
+  "name": "ctrl_spike30_fast_on",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [],
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "ctrl_offset 30 50"
+  }
+ },
+ {
+  "group": 2,
+  "name": "ctrl_spike30_fast_off",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [
+   "safety:=false"
+  ],
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "ctrl_offset 30 50"
+  }
+ },
+ {
+  "group": 2,
+  "name": "ctrl_step10_slow_on",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [],
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "ctrl_offset 10 1000"
+  }
+ },
+ {
+  "group": 2,
+  "name": "ctrl_step10_slow_off",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [
+   "safety:=false"
+  ],
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "ctrl_offset 10 1000"
+  }
+ },
+ {
+  "group": 2,
+  "name": "ctrl_step10_fast_on",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [],
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "ctrl_offset 10 1000"
+  }
+ },
+ {
+  "group": 2,
+  "name": "ctrl_step10_fast_off",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [
+   "safety:=false"
+  ],
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "ctrl_offset 10 1000"
+  }
+ },
+ {
+  "group": 2,
+  "name": "ctrl_hold1s_slow_on",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [],
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "ctrl_hold 1000"
+  }
+ },
+ {
+  "group": 2,
+  "name": "ctrl_hold1s_slow_off",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [
+   "safety:=false"
+  ],
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "ctrl_hold 1000"
+  }
+ },
+ {
+  "group": 2,
+  "name": "ctrl_hold1s_fast_on",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [],
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "ctrl_hold 1000"
+  }
+ },
+ {
+  "group": 2,
+  "name": "ctrl_hold1s_fast_off",
+  "mode": "hils",
+  "laps": 3,
+  "dnf_is_result": true,
+  "args": [
+   "safety:=false"
+  ],
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "ctrl_hold 1000"
+  }
+ }
+]
