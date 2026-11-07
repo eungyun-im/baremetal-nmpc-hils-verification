@@ -61,16 +61,17 @@ static inline bmpc_real bm_clamp(bmpc_real v, bmpc_real lo, bmpc_real hi)
  * |a| <= 64 pi 에서는 예전과 같은 연산이므로 결과가 비트 단위로 같다. NaN 은 그대로 NaN 이다. */
 static inline bmpc_real bm_wrap_pi(bmpc_real a)
 {
-  if (!((a <= (bmpc_real)(64.0 * BM_PI)) && (a >= (bmpc_real)(-64.0 * BM_PI)))) {
+  bmpc_real x = a;
+  if (!((x <= (bmpc_real)(64.0 * BM_PI)) && (x >= (bmpc_real)(-64.0 * BM_PI)))) {
 #ifdef BMPC_USE_FLOAT
-    a = fmodf(a, (float)(2.0 * BM_PI)); /* MCU 에서 배정밀도 소프트웨어 연산을 들이지 않는다 */
+    x = fmodf(x, (float)(2.0 * BM_PI)); /* MCU 에서 배정밀도 소프트웨어 연산을 들이지 않는다 */
 #else
-    a = fmod(a, 2.0 * BM_PI);
+    x = fmod(x, 2.0 * BM_PI);
 #endif
   }
-  while (a > (bmpc_real)BM_PI) a -= (bmpc_real)(2.0 * BM_PI);
-  while (a < (bmpc_real)-BM_PI) a += (bmpc_real)(2.0 * BM_PI);
-  return a;
+  while (x > (bmpc_real)BM_PI) x -= (bmpc_real)(2.0 * BM_PI);
+  while (x < (bmpc_real)-BM_PI) x += (bmpc_real)(2.0 * BM_PI);
+  return x;
 }
 
 static inline int bm_isfinite(bmpc_real v) { return isfinite(v) ? 1 : 0; }
