@@ -6,3 +6,4 @@ build/
 __pycache__/
 build_tests/
 build_quality/
+build_static/

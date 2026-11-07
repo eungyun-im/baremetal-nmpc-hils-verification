@@ -27,6 +27,17 @@ jobs:
         run: python3 verification/traceability/test_build_rtm.py
       - name: Traceability is up to date
         run: python3 verification/traceability/build_rtm.py --check
+      - name: Install static analyzers
+        run: sudo apt-get update -q && sudo apt-get install -y -q cppcheck clang-tidy
+      - name: Static analysis, no new findings
+        run: python3 sut/static_analysis.py
+      - name: Upload static analysis findings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: static-findings
+          path: sut/build_static/findings.json
+          if-no-files-found: ignore
       - name: Upload coverage summary
         if: always()
         uses: actions/upload-artifact@v4
