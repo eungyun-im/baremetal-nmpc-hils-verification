@@ -7,3 +7,6 @@ __pycache__/
 build_tests/
 build_quality/
 build_static/
+build_fuzz/
+!sut/test/fuzz/**/*.bin
+!verification/can/sample_frames.bin
