@@ -1,0 +1,119 @@
+VERSION "bmpc-1"
+
+
+NS_ :
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	BA_DEF_DEF_
+	SIG_VALTYPE_
+
+BS_:
+
+BU_: PC_BRIDGE MCU_MPC
+
+
+BO_ 240 BMPC_CFG_SET: 8 PC_BRIDGE
+ SG_ CfgIdx : 0|16@1+ (1,0) [0|65535] "" MCU_MPC
+ SG_ CfgValue : 32|32@1- (1,0) [-3.4E+038|3.4E+038] "" MCU_MPC
+
+BO_ 241 BMPC_CFG_COMMIT: 8 PC_BRIDGE
+ SG_ CfgHash : 0|32@1+ (1,0) [0|4294967295] "" MCU_MPC
+ SG_ CfgCount : 32|16@1+ (1,0) [0|65535] "" MCU_MPC
+
+BO_ 256 BMPC_REQ_0: 8 PC_BRIDGE
+ SG_ Seq : 0|16@1+ (1,0) [0|65535] "" MCU_MPC
+ SG_ FlagReset : 16|1@1+ (1,0) [0|1] "" MCU_MPC
+ SG_ FlagHighway : 17|1@1+ (1,0) [0|1] "" MCU_MPC
+ SG_ FlagAvoidance : 18|1@1+ (1,0) [0|1] "" MCU_MPC
+ SG_ FlagKick : 19|1@1+ (1,0) [0|1] "" MCU_MPC
+ SG_ FlagStop : 20|1@1+ (1,0) [0|1] "" MCU_MPC
+ SG_ RefType : 24|8@1+ (1,0) [0|255] "" MCU_MPC
+ SG_ C0 : 32|32@1- (1,0) [-3.4E+038|3.4E+038] "m" MCU_MPC
+
+BO_ 257 BMPC_REQ_1: 8 PC_BRIDGE
+ SG_ C1 : 0|32@1- (1,0) [-3.4E+038|3.4E+038] "" MCU_MPC
+ SG_ C2 : 32|32@1- (1,0) [-3.4E+038|3.4E+038] "1/m" MCU_MPC
+
+BO_ 258 BMPC_REQ_2: 8 PC_BRIDGE
+ SG_ C3 : 0|32@1- (1,0) [-3.4E+038|3.4E+038] "1/m2" MCU_MPC
+ SG_ XMax : 32|16@1+ (0.01,0) [0|655.35] "m" MCU_MPC
+ SG_ PathCounter : 48|16@1+ (1,0) [0|65535] "" MCU_MPC
+
+BO_ 259 BMPC_REQ_3: 8 PC_BRIDGE
+ SG_ RefV : 0|16@1+ (0.01,0) [0|655.35] "m/s" MCU_MPC
+ SG_ VLb : 16|16@1+ (0.01,0) [0|655.35] "m/s" MCU_MPC
+ SG_ VUb : 32|16@1+ (0.01,0) [0|655.35] "m/s" MCU_MPC
+ SG_ PostCap : 48|16@1+ (0.01,0) [0|655.35] "m/s" MCU_MPC
+
+BO_ 260 BMPC_REQ_4: 8 PC_BRIDGE
+ SG_ Snap : 0|16@1+ (0.01,0) [0|655.35] "m/s" MCU_MPC
+ SG_ Velocity : 16|16@1+ (0.01,0) [0|655.35] "m/s" MCU_MPC
+ SG_ YawRate : 32|16@1- (0.0001,0) [-3.2768|3.2767] "rad/s" MCU_MPC
+ SG_ LfEst : 48|16@1+ (0.001,0) [0|65.535] "m" MCU_MPC
+
+BO_ 261 BMPC_REQ_5: 8 PC_BRIDGE
+ SG_ Period : 0|16@1+ (1E-005,0) [0|0.65535] "s" MCU_MPC
+ SG_ OdomAge : 16|16@1+ (1E-005,0) [0|0.65535] "s" MCU_MPC
+ SG_ Transport : 32|16@1+ (1E-005,0) [0|0.65535] "s" MCU_MPC
+ SG_ ReqCrc16 : 48|16@1+ (1,0) [0|65535] "" MCU_MPC
+
+BO_ 480 BMPC_RESP_0: 8 MCU_MPC
+ SG_ Seq : 0|16@1+ (1,0) [0|65535] "" PC_BRIDGE
+ SG_ Status : 16|8@1+ (1,0) [0|255] "" PC_BRIDGE
+ SG_ Iters : 24|8@1+ (1,0) [0|255] "" PC_BRIDGE
+ SG_ SteerCmd : 32|32@1- (1,0) [-3.4E+038|3.4E+038] "rad" PC_BRIDGE
+
+BO_ 481 BMPC_RESP_1: 8 MCU_MPC
+ SG_ Accel : 0|16@1+ (0.0001,0) [0|6.5535] "" PC_BRIDGE
+ SG_ Brake : 16|16@1+ (0.0001,0) [0|6.5535] "" PC_BRIDGE
+ SG_ Delta0 : 32|16@1- (0.0001,0) [-3.2768|3.2767] "rad" PC_BRIDGE
+ SG_ VtFinal : 48|16@1+ (0.01,0) [0|655.35] "m/s" PC_BRIDGE
+
+BO_ 482 BMPC_RESP_2: 8 MCU_MPC
+ SG_ StateDelay : 0|16@1+ (1E-005,0) [0|0.65535] "s" PC_BRIDGE
+ SG_ Compute : 16|16@1+ (1E-005,0) [0|0.65535] "s" PC_BRIDGE
+ SG_ Actuation : 32|16@1+ (1E-005,0) [0|0.65535] "s" PC_BRIDGE
+ SG_ VtRaw : 48|16@1+ (0.01,0) [0|655.35] "m/s" PC_BRIDGE
+
+BO_ 483 BMPC_RESP_3: 8 MCU_MPC
+ SG_ SolveUs : 0|16@1+ (1,0) [0|65535] "us" PC_BRIDGE
+ SG_ TotalUs : 16|16@1+ (1,0) [0|65535] "us" PC_BRIDGE
+ SG_ LfUsed : 32|16@1+ (0.001,0) [0|65.535] "m" PC_BRIDGE
+ SG_ RespCrc16 : 48|16@1+ (1,0) [0|65535] "" PC_BRIDGE
+
+BO_ 488 BMPC_CFG_ACK: 8 MCU_MPC
+ SG_ AckHash : 0|32@1+ (1,0) [0|4294967295] "" PC_BRIDGE
+ SG_ AckCount : 32|16@1+ (1,0) [0|65535] "" PC_BRIDGE
+ SG_ AckStatus : 48|8@1+ (1,0) [0|255] "" PC_BRIDGE
+
+BO_ 2032 BENCH_RESET: 8 PC_BRIDGE
+ SG_ Magic0 : 0|8@1+ (1,0) [0|255] "" MCU_MPC
+ SG_ Magic1 : 8|8@1+ (1,0) [0|255] "" MCU_MPC
+ SG_ HookCentideg : 16|16@1- (0.01,0) [-327.68|327.67] "deg" MCU_MPC
+ SG_ HookMs : 32|16@1+ (1,0) [0|65535] "ms" MCU_MPC
+
+
+CM_ BU_ PC_BRIDGE "ROS bridge on the PC (bmpc_bridge_node). Sends a 6-frame request every control period.";
+CM_ BU_ MCU_MPC "S32K312 bare-metal NMPC firmware. Answers each complete request with 4 frames.";
+CM_ BO_ 240 "Config field, one frame per field at start-up. CfgValue is an IEEE-754 float; integer fields are converted on the MCU (out-of-range values are rejected since the DEF-6 fix).";
+CM_ BO_ 241 "Hash (FNV-1a) and count of the config values sent. The MCU answers with BMPC_CFG_ACK.";
+CM_ BO_ 256 "Request frame 0 of 6. The MCU starts solving when frame 5 (0x105) arrives. Reference path y = C0 + C1 x + C2 x^2 + C3 x^3 in vehicle coordinates.";
+CM_ SG_ 259 PostCap "0xFFFF (raw) = no cap.";
+CM_ SG_ 260 Snap "0xFFFF (raw) = none.";
+CM_ SG_ 260 LfEst "0 = no estimate.";
+CM_ SG_ 261 ReqCrc16 "CRC-16/CCITT-FALSE over all 48 bytes of 0x100..0x105 except these 2 bytes.";
+CM_ SG_ 480 SteerCmd "Steering command, MORAI sign convention.";
+CM_ SG_ 481 Delta0 "First steering of the MPC solution, MPC sign convention.";
+CM_ SG_ 483 RespCrc16 "CRC-16/CCITT-FALSE over all 32 bytes of 0x1E0..0x1E3 except these 2 bytes.";
+CM_ BO_ 2032 "Test bench only. Magic 5A A5 releases the SAFE_STOP latch; Magic0 0xFA (FAULT_HOOK builds) injects a steering fault: Magic1 = kind (1 offset, 2 hold, 3 stall main loop), HookCentideg, HookMs. Must not be accepted by a release build; see verification/release/check_release.py.";
+VAL_ 480 Status 0 "OK" 1 "MAXITER" 2 "INFEASIBLE" 3 "NUMERIC" 4 "ERR_RX" 5 "NOT_CONFIGURED" ;
+VAL_ 256 RefType 0 "CUBIC" ;
+SIG_VALTYPE_ 240 CfgValue : 1;
+SIG_VALTYPE_ 256 C0 : 1;
+SIG_VALTYPE_ 257 C1 : 1;
+SIG_VALTYPE_ 257 C2 : 1;
+SIG_VALTYPE_ 258 C3 : 1;
+SIG_VALTYPE_ 480 SteerCmd : 1;
