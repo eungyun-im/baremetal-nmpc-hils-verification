@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/img/hero.png" alt="Bare-Metal NMPC: software quality and HILS verification on an NXP S32K312" width="100%">
+<img src="docs/img/header_v2.png" alt="Bare-Metal NMPC: software quality and HILS verification on an NXP S32K312" width="100%">
 
 [![verify](https://github.com/eungyun-im/baremetal-nmpc-hils-verification/actions/workflows/verify.yml/badge.svg)](https://github.com/eungyun-im/baremetal-nmpc-hils-verification/actions/workflows/verify.yml)
 ![C99](https://img.shields.io/badge/C99-00599C?style=flat-square&logo=c&logoColor=white)
@@ -37,7 +37,7 @@ A nonlinear MPC runs without an OS on an automotive MCU (NXP S32K312, Cortex-M7,
 
 ## Setup
 
-![HILS setup](docs/img/architecture.png)
+![HILS setup](docs/img/hils_setup_v2.png)
 
 ## Test strategy
 
