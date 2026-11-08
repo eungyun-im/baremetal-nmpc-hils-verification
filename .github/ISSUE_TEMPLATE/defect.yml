@@ -1,0 +1,31 @@
+name: Defect
+description: A defect found in the firmware, integration code or test setup
+title: "DEF-?: "
+labels: [defect]
+body:
+  - type: textarea
+    id: summary
+    attributes: {label: Summary, description: What is wrong, in one or two sentences}
+    validations: {required: true}
+  - type: dropdown
+    id: found_by
+    attributes:
+      label: Found by
+      options: [Code review, Unit test, Static analysis, Fuzzing, Fault injection, HILS lap, Bag or log analysis]
+    validations: {required: true}
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options: ["high: safety, security or control quality", "medium: wrong behaviour normal inputs do not reach", "low: cosmetic or documentation"]
+    validations: {required: true}
+  - type: textarea
+    id: repro
+    attributes: {label: Reproduction, description: "Input file, test, lap condition or bag, and the observed result"}
+    validations: {required: true}
+  - type: textarea
+    id: impact
+    attributes: {label: Impact}
+  - type: textarea
+    id: verification
+    attributes: {label: Verification plan, description: "Regression test that fails before the fix, and the HILS laps that confirm it on the board"}
