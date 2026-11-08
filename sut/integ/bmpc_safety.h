@@ -34,6 +34,12 @@ extern "C" {
 #define BS_ID_SAFE_OUT 0x200u
 #define BS_ID_SAFE_STAT 0x201u
 #define BS_ID_BENCH_RESET 0x7F0u
+/* BENCH_RESET (0x7F0) is test-bench only (hils.dbc: "must be excluded from production builds").
+ * It is accepted only when BS_BENCH_RESET is defined (build.sh BENCH=1). The fault hook rides on the same
+ * frame, so BS_TEST_HOOK implies it. A release build ignores 0x7F0 entirely. */
+#if defined(BS_TEST_HOOK) && !defined(BS_BENCH_RESET)
+#define BS_BENCH_RESET
+#endif
 #define BS_PERIOD_MS 10u
 
 #ifdef BS_TEST_HOOK

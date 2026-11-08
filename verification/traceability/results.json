@@ -351,6 +351,30 @@
       ],
       "conditions": "none",
       "hils_laps": 0
+    },
+    {
+      "id": "DEF-6",
+      "title": "Config value outside the int32 range is converted to int (undefined behaviour)",
+      "status": "fixed in code, not yet run on the board",
+      "verifies": [],
+      "patch": null,
+      "unit_tests": [
+        "test_def6.c:main"
+      ],
+      "conditions": "none",
+      "hils_laps": 0
+    },
+    {
+      "id": "DEF-7",
+      "title": "Release build accepts the test-bench BENCH_RESET frame (0x7F0)",
+      "status": "fixed in code, release gate in CI, not yet run on the board",
+      "verifies": [],
+      "patch": null,
+      "unit_tests": [
+        "test_release_gate.c:main"
+      ],
+      "conditions": "none",
+      "hils_laps": 0
     }
   ],
   "known_gaps": [

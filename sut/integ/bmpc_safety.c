@@ -202,12 +202,17 @@ static int bs_can_send(void *ctx, const bmpc_can_frame_t *f)
 
 int bs_is_safety_frame(uint32_t id)
 {
+#ifdef BS_BENCH_RESET
   return (id == BS_ID_ESC_SPEED) || (id == BS_ID_SAS_STEER) || (id == BS_ID_VCU_PEDAL) || (id == BS_ID_ACU_IMU) ||
          (id == BS_ID_BENCH_RESET);
+#else
+  return (id == BS_ID_ESC_SPEED) || (id == BS_ID_SAS_STEER) || (id == BS_ID_VCU_PEDAL) || (id == BS_ID_ACU_IMU);
+#endif
 }
 
 void bs_on_safety_frame(bs_app_t *a, const bmpc_can_frame_t *f, uint32_t now_ms)
 {
+#ifdef BS_BENCH_RESET
   if (f->id == BS_ID_BENCH_RESET) {
 #ifdef BS_TEST_HOOK
     if (f->dlc >= 6u && f->data[0] == BS_HOOK_MAGIC) {
@@ -227,6 +232,7 @@ void bs_on_safety_frame(bs_app_t *a, const bmpc_can_frame_t *f, uint32_t now_ms)
     }
     return;
   }
+#endif
   if (f->dlc != 8u) return; /* 차량 CAN 은 모두 8 바이트 (vehicle.dbc) */
   if (f->id == BS_ID_ESC_SPEED) {
     sc_on_esc_frame(&a->sc, f->data, now_ms);

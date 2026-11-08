@@ -44,6 +44,8 @@ Data: 468 rows, 397 valid, 78 valid fault-free laps in judged conditions. Summar
 | DEF-3 | Watchdog was disabled | fixed | **none linked** | 6 |
 | DEF-4 | Steering check can release during a fault and hold steering on recovery | open | **none linked** | 17 |
 | DEF-5 | bm_wrap_pi can loop forever on a very large angle | fixed in code, not yet run on the board | `test_wrap_pi.c:main` | 0 |
+| DEF-6 | Config value outside the int32 range is converted to int (undefined behaviour) | fixed in code, not yet run on the board | `test_def6.c:main` | 0 |
+| DEF-7 | Release build accepts the test-bench BENCH_RESET frame (0x7F0) | fixed in code, release gate in CI, not yet run on the board | `test_release_gate.c:main` | 0 |
 
 ## Known gaps
 

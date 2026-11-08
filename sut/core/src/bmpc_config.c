@@ -11,13 +11,30 @@ void bmpc_config_default(bmpc_config_t *cfg)
 #undef BMPC_CFG_DEFAULT
 }
 
+/* DEF-6: float -> int32 is undefined behaviour (C99 6.3.1.4) when the value is NaN or outside the int32 range.
+ * Such a value is rejected and the field keeps its old value; the commit hash then differs and the MCU stays
+ * NOT_CONFIGURED. 2147483648.0f is exactly 2^31, the first float that no longer fits. */
+static int cfg_store_I(int32_t *dst, float value)
+{
+  if (!((value >= -2147483648.0f) && (value < 2147483648.0f))) {
+    return -1;
+  }
+  *dst = (int32_t)value;
+  return 0;
+}
+
+static int cfg_store_R(bmpc_real *dst, float value)
+{
+  *dst = (bmpc_real)value;
+  return 0;
+}
+
 int bmpc_config_set(bmpc_config_t *cfg, uint16_t idx, float value)
 {
   switch (idx) {
 #define BMPC_CFG_SET_CASE(i, name, type, def)                                              \
   case i:                                                                                  \
-    cfg->name = (BMPC_CFG_CTYPE_##type)(value);                                            \
-    return 0;
+    return cfg_store_##type(&cfg->name, value);
     BMPC_CONFIG_FIELDS(BMPC_CFG_SET_CASE)
 #undef BMPC_CFG_SET_CASE
     default:

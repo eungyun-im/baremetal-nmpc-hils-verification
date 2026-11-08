@@ -14,7 +14,9 @@
 #   SAFETY=1        팀 안전 제어기 통합 (integ/bmpc_safety + third_party/kuuve_safety)
 #   PLAUS=1         조향 명령 타당성 검사 (integ/bmpc_safety.c). SAFETY=1 과 함께
 #   SWT=1           워치독 켜기 (200 ms, 메인 루프에서 서비스). FAULT_HOOK=1 이면 hook_kind 3 으로 메인 루프를 멈춰 시험한다
-#   FAULT_HOOK=1    시험대 전용 조향 명령 결함 주입 (0x7F0, integ/bmpc_safety.h). 양산 빌드 제외. SAFETY=1 과 함께
+#   FAULT_HOOK=1    시험대 전용 조향 명령 결함 주입 (0x7F0, integ/bmpc_safety.h). 양산 빌드 제외. SAFETY=1 과 함께. BENCH=1 을 포함한다
+#   BENCH=1         시험대 전용 BENCH_RESET(0x7F0, SAFE_STOP 래치 해제)을 받는다. HILS 시험 빌드에 필요, 양산 빌드 제외
+#   BUILD_ID=...    ELF 에 남길 빌드 식별자 (기본: git describe). 확인: verification/release/check_release.py
 set -e
 cd "$(dirname "$0")"
 CORE=../../core
@@ -51,14 +53,17 @@ if [ "$SAFETY" = 1 ]; then
   DEFS="$DEFS -DBMPC_FW_SAFETY -I../../integ -I../../third_party/kuuve_safety"
   EXTRA_SRC="../../integ/bmpc_safety.c ../../third_party/kuuve_safety/safety_ctrl.c"
   [ "$FAULT_HOOK" = 1 ] && DEFS="$DEFS -DBS_TEST_HOOK"
+  [ "$BENCH" = 1 ] && DEFS="$DEFS -DBS_BENCH_RESET"
 fi
+BUILD_ID=${BUILD_ID:-$(git describe --always --dirty 2>/dev/null || echo unknown)}
+DEFS="$DEFS -DBMPC_FW_BUILD_ID=\"$BUILD_ID\""
 
 mkdir -p build
 echo "GCC: $GCC"
 echo "DEFS: $DEFS"
 $CC -mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-sp-d16 -std=gnu99 ${OPT:--O3} -g $DEFS \
   -Wall -Wextra -Werror -Wdouble-promotion -fno-math-errno -ffunction-sections -fdata-sections \
-  -I$CORE/include -nostartfiles --specs=nano.specs -T linker.ld -Wl,--gc-sections -Wl,-Map=build/fw_bmpc.map \
+  -I$CORE/include -nostartfiles --specs=nano.specs -T linker.ld -Wl,--gc-sections -Wl,-u,g_fw_features -Wl,-u,g_fw_build_id -Wl,-Map=build/fw_bmpc.map \
   -Wl,--print-memory-usage \
   startup.S main.c $CORE/src/*.c $EXTRA_SRC \
   -o build/fw_bmpc.elf -lm 2>&1 | tee build/build_log.txt

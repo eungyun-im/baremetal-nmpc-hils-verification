@@ -9,6 +9,6 @@ one() { n=$1; fl=$2; t=$3; d=$B/$n; mkdir -p "$d/cov" "$d/san"
   (cd "$d/cov" && gcovr -r "$R" . --filter "$R/core/src/" --filter "$R/integ/" --filter "$R/third_party/" --json "$B/$n.json" 2>/dev/null)
   (cd "$d/san" && gcc $CF -O1 -g -fsanitize=address,undefined -fno-sanitize-recover=undefined $fl $INC "$R/test/$t.c" $SRC -lm -o t && ./t > out.txt 2>&1) && echo "$n sanitizer OK: $(tail -1 "$d/san/out.txt")" || { echo "$n sanitizer FAILED"; rc=1; }
   ADD="$ADD --add-tracefile $B/$n.json"; }
-one core "" test_core; one core_more "" test_core_more; one qp_more "" test_qp_more; one integ -DBS_TEST_HOOK test_integ; one integ_more -DBS_TEST_HOOK test_integ_more; one integ_plaus "-DBS_TEST_HOOK -DBS_PLAUS" test_integ_more; one app "" test_app; one safety_reqs "" test_safety_reqs; one wrap_pi "" test_wrap_pi; one wrap_pi_float -DBMPC_USE_FLOAT test_wrap_pi
+one core "" test_core; one core_more "" test_core_more; one qp_more "" test_qp_more; one integ -DBS_TEST_HOOK test_integ; one integ_more -DBS_TEST_HOOK test_integ_more; one integ_plaus "-DBS_TEST_HOOK -DBS_PLAUS" test_integ_more; one app "" test_app; one release_gate "" test_release_gate; one release_gate_bench -DBS_BENCH_RESET test_release_gate; one safety_reqs "" test_safety_reqs; one wrap_pi "" test_wrap_pi; one wrap_pi_float -DBMPC_USE_FLOAT test_wrap_pi; one def6 "" test_def6
 gcovr -r . $ADD --txt-summary --json-summary "$B/coverage_summary.json" 2>/dev/null | tail -3
 exit $rc
