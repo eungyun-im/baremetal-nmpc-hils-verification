@@ -18,8 +18,8 @@ The safety layer (`integ/bmpc_safety.*`, `third_party/kuuve_safety/safety_ctrl.c
 
 | Rule | Count | Reason |
 |---|---:|---|
-| 15.5 | 15 | Early returns on invalid frames and in the plausibility state machine. Restructuring would change control flow in tested safety code for an advisory rule. |
-| 2.5 | 5 | Macros used by platform/s32k312/main.c and the tests, which are outside the analyzed scope. |
+| 15.5 | 14 | Early returns on invalid frames and in the plausibility state machine. Restructuring would change control flow in tested safety code for an advisory rule. |
+| 2.5 | 6 | Macros used by platform/s32k312/main.c and the tests, which are outside the analyzed scope, and bench-only macros (fault hook, BENCH_RESET ID) that the cppcheck addon reports even inside an inactive #if. |
 | 11.5 | 1 | CAN send callback receives its context as void *, the usual C callback pattern. |
 | 8.7 | 1 | bs_make_ctrl_frame has external linkage so the unit tests can check the CTRL_CMD encoding. |
 | bugprone-branch-clone | 1 | Empty else branch kept on purpose after if ... else if. |
@@ -39,14 +39,14 @@ The safety layer (`integ/bmpc_safety.*`, `third_party/kuuve_safety/safety_ctrl.c
 | Rule | Category | Topic | Count | Disposition |
 |---|---|---|---:|---|
 | 12.1 | Advisory | Make operator precedence explicit | 115 | Style. Not changed. |
-| 15.5 | Advisory | Single point of exit | 46 | Early returns on errors. Not changed. |
+| 15.5 | Advisory | Single point of exit | 45 | Early returns on errors. Not changed. |
 | 15.6 | Required | Loop and if bodies must be compound statements | 44 | Single-line bodies without braces. Not changed. |
 | 12.3 | Advisory | Avoid the comma operator | 42 | Mostly several variables declared or advanced in one statement. Not changed. |
 | 10.4 | Required | Operands of the same essential type category | 36 | Mixed int and float arithmetic. Reviewed as part of the float build tests. Not changed. |
 | 17.7 | Required | Use the return value of non-void functions | 21 | Ignored returns, mostly status of helpers. Not changed. |
 | 10.3 | Required | No assignment to a narrower or different essential type | 17 | Narrowing into fixed-width protocol fields. Not changed. |
 | 14.4 | Required | Controlling expressions must be essentially Boolean | 12 | Integer flags used as conditions. Not changed. |
-| 2.5 | Advisory | Unused macro | 10 | Not changed. |
+| 2.5 | Advisory | Unused macro | 11 | Not changed. |
 | 20.5 | Advisory | Avoid #undef | 6 | X-macro pattern. Not changed. |
 | 8.7 | Advisory | External linkage used in one file only | 6 | Not changed. |
 | 20.7 | Required | Macro parameters in parentheses | 5 | X-macro parameters used as names, where parentheses are not possible. Not changed. |
@@ -73,10 +73,10 @@ The safety layer (`integ/bmpc_safety.*`, `third_party/kuuve_safety/safety_ctrl.c
 | `core/src/bmpc_config.c` | 20 |
 | `core/src/bmpc_post.c` | 20 |
 | `core/src/bmpc_app.c` | 19 |
-| `integ/bmpc_safety.c` | 13 |
+| `integ/bmpc_safety.c` | 12 |
 | `core/include/bmpc/bmpc_math.h` | 8 |
 | `core/src/bmpc_weights.c` | 6 |
-| `integ/bmpc_safety.h` | 5 |
+| `integ/bmpc_safety.h` | 6 |
 | `third_party/kuuve_safety/safety_ctrl.c` | 4 |
 | `core/include/bmpc/bmpc_mpc.h` | 3 |
 | `core/include/bmpc/bmpc_protocol.h` | 3 |
