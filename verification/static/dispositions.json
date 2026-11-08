@@ -121,7 +121,7 @@
   },
   "safety_layer": {
     "15.5": "Early returns on invalid frames and in the plausibility state machine. Restructuring would change control flow in tested safety code for an advisory rule.",
-    "2.5": "Macros used by platform/s32k312/main.c and the tests, which are outside the analyzed scope.",
+    "2.5": "Macros used by platform/s32k312/main.c and the tests, which are outside the analyzed scope, and bench-only macros (fault hook, BENCH_RESET ID) that the cppcheck addon reports even inside an inactive #if.",
     "8.7": "bs_make_ctrl_frame has external linkage so the unit tests can check the CTRL_CMD encoding.",
     "11.5": "CAN send callback receives its context as void *, the usual C callback pattern.",
     "bugprone-branch-clone": "Empty else branch kept on purpose after if ... else if."

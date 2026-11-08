@@ -119,12 +119,68 @@
 /* 메일박스 배치: 수신 0..12 (ID 마다 하나, MB14/15 는 전용 마스크라 쓰지 않음), 송신 16..25 (한 ID 에 하나).
  * 수신 8..12 는 안전 제어기 입력 (차량 CAN, BENCH_RESET). 안전 제어기 없는 빌드는 받아서 버린다. */
 #define NUM_MB 32u
+#if defined(BS_BENCH_RESET) || defined(BS_TEST_HOOK)
+#define FW_BENCH 1
 #define N_RX_MB 13u
+#else
+#define FW_BENCH 0
+#define N_RX_MB 12u /* release: no mailbox for BENCH_RESET */
+#endif
 #define N_RX_MPC 8u
 static const uint32_t k_rx_id[N_RX_MB] = {
     BMPC_ID_CFG_SET,       BMPC_ID_CFG_COMMIT,    BMPC_ID_REQ_BASE + 0u, BMPC_ID_REQ_BASE + 1u, BMPC_ID_REQ_BASE + 2u,
     BMPC_ID_REQ_BASE + 3u, BMPC_ID_REQ_BASE + 4u, BMPC_ID_REQ_BASE + 5u, 0x1A0u /* ESC_SPEED */, 0x1B0u /* SAS_STEER */,
-    0x1C0u /* VCU_PEDAL */, 0x1D0u /* ACU_IMU */,  0x7F0u /* BENCH_RESET */};
+    0x1C0u /* VCU_PEDAL */, 0x1D0u /* ACU_IMU */
+#if FW_BENCH
+    , 0x7F0u /* BENCH_RESET */
+#endif
+};
+
+/* Build identity, read from the ELF by verification/release/check_release.py (never sent on the bus).
+ * Bits: 0 SAFETY, 1 PLAUS, 2 SWT, 3 PLL, 4 DCACHE, 8 FAULT_HOOK, 9 BENCH_RESET, 10 PROFILE. */
+#ifndef BMPC_FW_BUILD_ID
+#define BMPC_FW_BUILD_ID "unknown"
+#endif
+#define FW_FEAT_BIT(on, b) ((on) ? (1u << (b)) : 0u)
+#ifdef BMPC_FW_SAFETY
+#define FW_F_SAFETY 1
+#else
+#define FW_F_SAFETY 0
+#endif
+#ifdef BS_PLAUS
+#define FW_F_PLAUS 1
+#else
+#define FW_F_PLAUS 0
+#endif
+#ifdef BMPC_FW_SWT
+#define FW_F_SWT 1
+#else
+#define FW_F_SWT 0
+#endif
+#ifdef BMPC_FW_PLL
+#define FW_F_PLL 1
+#else
+#define FW_F_PLL 0
+#endif
+#ifdef BMPC_FW_DCACHE
+#define FW_F_DCACHE 1
+#else
+#define FW_F_DCACHE 0
+#endif
+#ifdef BS_TEST_HOOK
+#define FW_F_HOOK 1
+#else
+#define FW_F_HOOK 0
+#endif
+#ifdef BMPC_PROFILE
+#define FW_F_PROFILE 1
+#else
+#define FW_F_PROFILE 0
+#endif
+const uint32_t g_fw_features = FW_FEAT_BIT(FW_F_SAFETY, 0) | FW_FEAT_BIT(FW_F_PLAUS, 1) | FW_FEAT_BIT(FW_F_SWT, 2) |
+                               FW_FEAT_BIT(FW_F_PLL, 3) | FW_FEAT_BIT(FW_F_DCACHE, 4) | FW_FEAT_BIT(FW_F_HOOK, 8) |
+                               FW_FEAT_BIT(FW_BENCH, 9) | FW_FEAT_BIT(FW_F_PROFILE, 10);
+const char g_fw_build_id[] = BMPC_FW_BUILD_ID;
 #define MB_TX_RESP0 16u /* 0x1E0..0x1E3 -> 16..19 */
 #define MB_TX_ACK 20u
 #define MB_TX_HB 21u

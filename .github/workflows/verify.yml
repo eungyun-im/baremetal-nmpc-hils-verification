@@ -27,6 +27,8 @@ jobs:
         run: python3 verification/traceability/test_build_rtm.py
       - name: Traceability is up to date
         run: python3 verification/traceability/build_rtm.py --check
+      - name: Quality metrics page is up to date
+        run: python3 verification/metrics/build_metrics.py --check
       - name: Install static analyzers
         run: sudo apt-get update -q && sudo apt-get install -y -q cppcheck clang-tidy
       - name: Static analysis, no new findings
@@ -45,3 +47,49 @@ jobs:
           name: coverage-summary
           path: sut/build_quality/coverage_summary.json
           if-no-files-found: ignore
+
+  can-dbc:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install tools
+        run: pip install cantools==39.4.13 python-can==4.5.0
+      - name: DBC matches the firmware encoder and a real recording
+        run: python3 verification/can/test_dbc.py
+
+  fuzz:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Regression inputs, then 5 minutes of fuzzing per build
+        run: FUZZ_SECONDS=300 sut/test/fuzz/fuzz.sh
+      - name: Upload fuzz findings
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-findings
+          path: sut/build_fuzz/*/artifacts/
+
+  firmware-release-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ARM toolchain
+        run: sudo apt-get update -q && sudo apt-get install -y -q gcc-arm-none-eabi libnewlib-arm-none-eabi
+      - name: Build release firmware
+        run: SAFETY=1 PLAUS=1 SWT=1 BUILD_ID=${GITHUB_SHA::12} bash sut/platform/s32k312/build.sh && mkdir -p out && cp sut/platform/s32k312/build/fw_bmpc.{elf,map} sut/platform/s32k312/build/size.txt out/
+      - name: Release gate
+        run: python3 verification/release/check_release.py out/fw_bmpc.elf
+      - name: A bench build must be rejected
+        run: SAFETY=1 PLAUS=1 SWT=1 FAULT_HOOK=1 BUILD_ID=${GITHUB_SHA::12} bash sut/platform/s32k312/build.sh && python3 verification/release/check_release.py sut/platform/s32k312/build/fw_bmpc.elf --expect-fail
+      - name: Upload release firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-release-${{ github.sha }}
+          path: out/

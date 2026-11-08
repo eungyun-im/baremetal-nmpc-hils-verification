@@ -1,0 +1,11 @@
+{
+  "note": "Long fuzzing runs on a workstation (libFuzzer, ASan+UBSan, -fork=6). CI runs 5 minutes per build on every push.",
+  "runs": [
+    {"date": "2026-11-08", "build": "double", "hours": 4, "executions": 52699164, "coverage_edges": 651, "corpus": 626, "crashes": 0,
+     "note": "before the DEF-6 fix, float-cast-overflow check off"},
+    {"date": "2026-11-08", "build": "float", "hours": 4, "executions": 43033497, "coverage_edges": 652, "corpus": 627, "crashes": 0,
+     "note": "before the DEF-6 fix, float-cast-overflow check off"},
+    {"date": "2026-11-08", "build": "double", "hours": 0.006, "executions": null, "coverage_edges": null, "corpus": null, "crashes": 1,
+     "note": "20 s smoke run that found DEF-6"}
+  ]
+}
