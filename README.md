@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/img/hero.png" alt="Bare-metal NMPC: 24.41 ms max solve, 468 recorded laps, 96.9% line coverage, 7 defects found with 4 open" width="100%">
+<img src="docs/img/hero.png" alt="Bare-Metal NMPC: software quality and HILS verification on an NXP S32K312" width="100%">
 
 [![verify](https://github.com/eungyun-im/baremetal-nmpc-hils-verification/actions/workflows/verify.yml/badge.svg)](https://github.com/eungyun-im/baremetal-nmpc-hils-verification/actions/workflows/verify.yml)
 ![C99](https://img.shields.io/badge/C99-00599C?style=flat-square&logo=c&logoColor=white)
