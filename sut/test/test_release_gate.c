@@ -5,6 +5,10 @@
 #include <string.h>
 #include "bmpc_safety.h"
 
+#ifndef BS_ID_BENCH_RESET
+#define BS_ID_BENCH_RESET 0x7F0u /* the release header no longer defines it */
+#endif
+
 static int64_t g_us;
 static int64_t fake_now(void *ctx) { (void)ctx; return g_us; }
 static int fake_send(void *ctx, const bmpc_can_frame_t *f) { (void)ctx; (void)f; return 0; }

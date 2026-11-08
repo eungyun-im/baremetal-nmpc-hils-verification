@@ -16,11 +16,12 @@ void bmpc_config_default(bmpc_config_t *cfg)
  * NOT_CONFIGURED. 2147483648.0f is exactly 2^31, the first float that no longer fits. */
 static int cfg_store_I(int32_t *dst, float value)
 {
-  if (!((value >= -2147483648.0f) && (value < 2147483648.0f))) {
-    return -1;
+  int rc = -1;
+  if ((value >= -2147483648.0f) && (value < 2147483648.0f)) {
+    *dst = (int32_t)value;
+    rc = 0;
   }
-  *dst = (int32_t)value;
-  return 0;
+  return rc;
 }
 
 static int cfg_store_R(bmpc_real *dst, float value)

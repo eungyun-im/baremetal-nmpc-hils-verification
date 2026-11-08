@@ -202,7 +202,7 @@ static int bs_can_send(void *ctx, const bmpc_can_frame_t *f)
 
 int bs_is_safety_frame(uint32_t id)
 {
-#ifdef BS_BENCH_RESET
+#if defined(BS_BENCH_RESET) || defined(BS_TEST_HOOK)
   return (id == BS_ID_ESC_SPEED) || (id == BS_ID_SAS_STEER) || (id == BS_ID_VCU_PEDAL) || (id == BS_ID_ACU_IMU) ||
          (id == BS_ID_BENCH_RESET);
 #else
@@ -212,7 +212,7 @@ int bs_is_safety_frame(uint32_t id)
 
 void bs_on_safety_frame(bs_app_t *a, const bmpc_can_frame_t *f, uint32_t now_ms)
 {
-#ifdef BS_BENCH_RESET
+#if defined(BS_BENCH_RESET) || defined(BS_TEST_HOOK)
   if (f->id == BS_ID_BENCH_RESET) {
 #ifdef BS_TEST_HOOK
     if (f->dlc >= 6u && f->data[0] == BS_HOOK_MAGIC) {
