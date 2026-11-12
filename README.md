@@ -15,6 +15,11 @@
 
 ---
 
+<p align="center">
+<img src="docs/img/s32k312evb.jpg" alt="NXP S32K312EVB-Q172 evaluation board" width="80%"><br>
+<sub>NXP S32K312EVB-Q172 evaluation board. Photo: NXP Semiconductors product image.</sub>
+</p>
+
 A nonlinear MPC runs without an OS on an automotive MCU (NXP S32K312, Cortex-M7, 120 MHz). This repository records how it was verified with unit tests, coverage, mutation testing, fault injection and hardware-in-the-loop (HILS) runs on a real board. It includes the defects found and the criteria that failed, not only the passing results.
 
 > No MISRA or ISO 26262 compliance is claimed. Testing was done in a simulator. There was no vehicle test.
@@ -51,9 +56,7 @@ Three things from that round are worth stating up front:
 
 ![HILS setup](docs/img/hils_setup_v2.png)
 
-<p align="center"><img src="docs/img/s32k312evb.jpg" alt="NXP S32K312EVB-Q172 evaluation board" width="70%"></p>
-
-The MCU under test is the S32K312 on an NXP S32K312EVB-Q172 evaluation board (Arm Cortex-M7, 120 MHz). It connects to the PC over CAN at 500 kbps through a USB-CAN adapter. Board photo: NXP Semiconductors product image.
+The MCU under test is the S32K312 on an NXP S32K312EVB-Q172 evaluation board (shown at the top). It connects to the PC over CAN at 500 kbps through a USB-CAN adapter.
 
 ## Test strategy
 
