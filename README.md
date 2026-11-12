@@ -51,6 +51,10 @@ Three things from that round are worth stating up front:
 
 ![HILS setup](docs/img/hils_setup_v2.png)
 
+<p align="center"><img src="docs/img/s32k312evb.jpg" alt="NXP S32K312EVB-Q172 evaluation board" width="70%"></p>
+
+The MCU under test is the S32K312 on an NXP S32K312EVB-Q172 evaluation board (Arm Cortex-M7, 120 MHz). It connects to the PC over CAN at 500 kbps through a USB-CAN adapter. Board photo: NXP Semiconductors product image.
+
 ## Test strategy
 
 | Layer | Method | What it can find |
