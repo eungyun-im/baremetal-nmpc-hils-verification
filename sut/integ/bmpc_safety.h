@@ -49,6 +49,8 @@ extern "C" {
 #define BS_HOOK_OFF 0u
 #define BS_HOOK_OFFSET 1u /* 조향에 값을 더한다 */
 #define BS_HOOK_HOLD 2u   /* 결함 직전 조향으로 고정한다 */
+/* 3 은 메인 루프 멈춤(워치독 시험, platform/s32k312/main.c) */
+#define BS_HOOK_SOLVE_FAIL 4u /* MPC 풀이를 실패(status 3)로 바꾼다. 코어도 BMPC_TEST_HOOK 으로 빌드해야 한다 */
 #endif
 
 #ifdef BS_PLAUS

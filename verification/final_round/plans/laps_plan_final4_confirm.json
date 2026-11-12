@@ -1,0 +1,26 @@
+[
+ {
+  "group": 51,
+  "name": "final4_hils_c1",
+  "mode": "hils",
+  "laps": 5
+ },
+ {
+  "group": 52,
+  "name": "final4_nmpc_c2",
+  "mode": "nmpc",
+  "laps": 5
+ },
+ {
+  "group": 53,
+  "name": "final4_hils_c3",
+  "mode": "hils",
+  "laps": 5
+ },
+ {
+  "group": 54,
+  "name": "final4_nmpc_c4",
+  "mode": "nmpc",
+  "laps": 5
+ }
+]

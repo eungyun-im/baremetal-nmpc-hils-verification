@@ -1,0 +1,444 @@
+[
+ {
+  "group": 31,
+  "name": "final3_hils_b1",
+  "mode": "hils",
+  "laps": 5
+ },
+ {
+  "group": 32,
+  "name": "final3_sils_b1",
+  "mode": "sils",
+  "laps": 5,
+  "args": [
+   "sqp_iters:=2",
+   "qp_max_iters:=16",
+   "sim_mcu_type:=bmpc_sim_mcu_f32"
+  ]
+ },
+ {
+  "group": 33,
+  "name": "final3_nmpc_b1",
+  "mode": "nmpc",
+  "laps": 5
+ },
+ {
+  "group": 34,
+  "name": "final3_sils_b2",
+  "mode": "sils",
+  "laps": 5,
+  "args": [
+   "sqp_iters:=2",
+   "qp_max_iters:=16",
+   "sim_mcu_type:=bmpc_sim_mcu_f32"
+  ]
+ },
+ {
+  "group": 35,
+  "name": "final3_nmpc_b2",
+  "mode": "nmpc",
+  "laps": 5
+ },
+ {
+  "group": 36,
+  "name": "final3_hils_b2",
+  "mode": "hils",
+  "laps": 5
+ },
+ {
+  "group": 37,
+  "name": "final3_nmpc_b3",
+  "mode": "nmpc",
+  "laps": 5
+ },
+ {
+  "group": 38,
+  "name": "final3_hils_b3",
+  "mode": "hils",
+  "laps": 5
+ },
+ {
+  "group": 39,
+  "name": "final3_sils_b3",
+  "mode": "sils",
+  "laps": 5,
+  "args": [
+   "sqp_iters:=2",
+   "qp_max_iters:=16",
+   "sim_mcu_type:=bmpc_sim_mcu_f32"
+  ]
+ },
+ {
+  "group": 40,
+  "name": "final3_hils_b4",
+  "mode": "hils",
+  "laps": 5
+ },
+ {
+  "group": 41,
+  "name": "final3_sils_b4",
+  "mode": "sils",
+  "laps": 5,
+  "args": [
+   "sqp_iters:=2",
+   "qp_max_iters:=16",
+   "sim_mcu_type:=bmpc_sim_mcu_f32"
+  ]
+ },
+ {
+  "group": 42,
+  "name": "final3_nmpc_b4",
+  "mode": "nmpc",
+  "laps": 5
+ },
+ {
+  "group": 43,
+  "name": "fault_solve_fail_l1curve7",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1242,
+   "cmd": "solve_fail 1000",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_solve_fail_l2straight12",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1786,
+   "cmd": "solve_fail 1000",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_solve_fail_l3curve10",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 5476,
+   "cmd": "solve_fail 1000",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_solve_fail_l4curve16",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 8002,
+   "cmd": "solve_fail 1000",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_solve_fail_l5curve7b",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 9023,
+   "cmd": "solve_fail 1000",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_solve_fail_l6straight20",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 3007,
+   "cmd": "solve_fail 1000",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_solve_fail_l7curve16b",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 10086,
+   "cmd": "solve_fail 1000",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_solve_fail_l8curve20",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 5265,
+   "cmd": "solve_fail 1000",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_solve_fail_l9m6accel18",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 2,
+   "index": 1026,
+   "cmd": "solve_fail 1000",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_solve_fail_l10exitcurve15",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 9475,
+   "cmd": "solve_fail 1000",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_solve_blip_s1curve7",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1242,
+   "cmd": "solve_fail 100"
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_solve_blip_s2straight20",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 3007,
+   "cmd": "solve_fail 100"
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_solve_blip_s3curve10",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 5476,
+   "cmd": "solve_fail 100"
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_solve_blip_s4curve16b",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 10086,
+   "cmd": "solve_fail 100"
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_blackout_slow",
+  "mode": "hils",
+  "laps": 2,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "blackout 0.35",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_blackout_fast",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "blackout 0.35",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_veh_loss_slow",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "veh_loss 0.6"
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_veh_loss_fast",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "veh_loss 0.6"
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_bus_off_slow",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "bus_off 0.5",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_bus_off_fast",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "bus_off 0.5",
+   "reset_after": 3.0
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_req_crc_slow",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "req_crc 2"
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_req_crc_fast",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "req_crc 2"
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_veh_crc_slow",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "veh_crc 3"
+  }
+ },
+ {
+  "group": 43,
+  "name": "fault_veh_crc_fast",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "veh_crc 3"
+  }
+ },
+ {
+  "group": 43,
+  "name": "plaus_step10_slow",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "ctrl_offset 10 1000"
+  }
+ },
+ {
+  "group": 43,
+  "name": "plaus_step10_fast",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "ctrl_offset 10 1000"
+  }
+ },
+ {
+  "group": 43,
+  "name": "wdt_hang_slow",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 0,
+   "index": 1400,
+   "cmd": "wdt_hang"
+  }
+ },
+ {
+  "group": 43,
+  "name": "wdt_hang_fast",
+  "mode": "hils",
+  "laps": 1,
+  "dnf_is_result": true,
+  "fault": {
+   "csv": 3,
+   "index": 3000,
+   "cmd": "wdt_hang"
+  }
+ }
+]

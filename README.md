@@ -23,17 +23,29 @@ A nonlinear MPC runs without an OS on an automotive MCU (NXP S32K312, Cortex-M7,
 
 | Area | Result | Scope |
 |---|---|---|
-| Unit tests | **All 14 test executables pass**, 0 ASan or UBSan errors | Host, 2026-11-08, published code |
-| Coverage | Line **96.9%** (1492/1539), branch **84.7%** (872/1030) | Host, excludes `platform/` and `test/` |
-| Mutation | QP comparison **27 → 66/81**, arithmetic **99 → 127/127** | 2026-11-05, not rerun after the later QP fix |
-| Compiler warnings | `-Wall -Wextra`: 0, `-Wconversion -Wshadow`: 2 | Core and safety modules |
-| Static analysis | 383 MISRA C:2012 findings over 22 rules, **0 required-rule findings in the safety layer**, 1 real defect found and fixed | cppcheck 2.13 MISRA addon and clang-tidy 18, no compliance claimed |
+| Requirements, final round | **16 requirements: 12 pass, 2 fail, 2 report-only.** Failed: maximum path error (8 of 20 HILS laps above 0.80 m) and board-vs-PC output difference (0.0159° against a 0.01° limit) | 89 official laps, criteria fixed before the first lap. [Details](docs/final_round.md) |
+| Closed-loop comparison | MCU vs original PC controller (Ipopt): mean path error difference **0.006 m**, within lap-to-lap spread (allowed 0.031 m) | 20 laps each, interleaved blocks |
+| Safety reactions | Command loss 185-186 ms, speed loss 173-181 ms, persistent solver failure 202-227 ms, MCU hang 198 ms (limit 290 ms). Bus-off: safe stop reached, time not measurable | 29 official fault laps, 28 more after the verdict |
+| Unit tests | **All 15 test executables pass**, 0 ASan or UBSan errors; fault campaign 10,000 runs, 0 failures | Host, 2026-11-12, published code |
+| Coverage | Line **97.0%** (1500/1547), branch **84.8%** (880/1038); MC/DC 76.4% overall, **47.1% in the safety controller file** | Host, excludes `platform/` and `test/`; MC/DC measured once with clang 18, not in CI |
+| Mutation | QP comparison **27 → 66/81**, arithmetic **99 → 127/127** | 2026-11-05, not rerun after later changes |
+| Static analysis | 402 findings (385 MISRA C:2012 over 22 rules), **0 required-rule findings in the safety layer**, all findings classified, the 90 defect-prone ones read line by line, 1 real defect found and fixed | cppcheck 2.13 MISRA addon and clang-tidy 18, no compliance claimed, no independent review |
 | CAN interface | DBC decodes **3,000 encoder-generated messages and a real recording** with matching values and CRCs | `verification/can/`, double and float builds |
 | Fuzzing | 4 h per build, **95.7 M executions**, 1 defect (DEF-6, fixed); 5 min per build on every push | libFuzzer, ASan, UBSan |
 | Release gate | Release ELF must have no bench features; the bench build used in HILS is **rejected**, as intended | `verification/release/check_release.py` in CI |
-| Real-time | Max solve **24.41 ms**, max round trip **38.88 ms**, 50 ms period | Real board, measured, not a WCET bound |
-| HILS | **468 laps recorded, 397 valid** | MORAI K-City, one scenario |
-| Path error criterion AC-10 | **Failed**: 29 of 63 judged laps exceeded 0.80 m | See the failure analysis below |
+| Real-time | Final round: max solve **21.7 ms** in 20 laps and **28.5 ms** on the worst-case-input bench (budget 29 ms), max round trip 36.7 ms, max control cycle 48.7 ms of a 50 ms period. **One 30.7 ms solve in a later 2.9 h soak** | Real board, measured. Not a WCET bound, and the firmware has no solve deadline handling |
+| HILS | Earlier rounds: 468 laps recorded, 397 valid. Final round: 117 attempted, 109 valid (89 official, 20 confirmation), then 57 soak laps and 44 supplementary laps | MORAI K-City, one scenario |
+| Path error criterion AC-10 | **Failed** in every round. Earlier: 29 of 63 judged laps above 0.80 m. Final: 8 of 20 HILS laps, 7 of 20 with the original controller | See the failure analysis below and the final round page |
+
+## Final round
+
+The last round (2026-11-11 to 12) judged 16 requirements against criteria and lap counts written down before the first official lap, compared the MCU with the same code on the PC and with the original PC controller in interleaved blocks, and added tests after the verdict that are reported separately. [`docs/final_round.md`](docs/final_round.md) has the verdict table, the delay breakdown, the supplementary tests, the collision flags and the open defects. Raw records are in [`verification/final_round/`](verification/final_round), mostly in Korean.
+
+Three things from that round are worth stating up front:
+
+- **A requirement-based test found a real safety defect (DEF-35).** While the solver kept failing, the firmware kept sending the last command as if it were fresh, so the safety controller never stopped the vehicle. It was fixed and then verified on the board at 10 locations.
+- **The port did not make the control cycle faster while driving.** Pose-to-command delay is 41.4 ms on the MCU setup against 28.7 ms for the original controller; 14.5 ms of the MCU figure is the transfer segment and the wait for the safety controller. Cycle time while driving is similar (max 48.7 ms against 61.7 ms). What the MCU version adds is a solver with a fixed iteration cap and a safety layer on the MCU, not a proven time bound.
+- **The first versions of the final report had errors, and they were corrected.** Three checks of the report against the raw data found, among others, an aggregation bug in the verdict script (TI-22) and statements stronger than the evidence. No verdict changed. The corrections are listed in [`docs/final_round.md`](docs/final_round.md#corrections).
 
 ## Setup
 
@@ -94,7 +106,7 @@ The most useful result was a known defect found again from a different angle: MI
 
 The effort follows risk. The safety layer, which handles faults, now has **no required-rule findings** (18 before), and its remaining advisory findings are recorded as deviations with reasons. The MPC core keeps its findings in the baseline. The baseline also caught one new violation introduced during the cleanup.
 
-The changed firmware builds (flash +408 B) but has **not run on the board yet**. The final HILS laps will use it.
+The final round ran on firmware built from this source (a bench build with the fault hook). The solver-failure test hook added two findings (DEF-37), accepted into the baseline because the firmware was frozen after the final measurements. All 402 findings were classified after the final round and the 90 of a defect-prone kind were read line by line; none was confirmed as a defect, but the reviewer was not independent ([`static_triage.md`](verification/final_round/sw_quality/static_triage.md), Korean).
 
 ## Mutation testing and injected defects
 
@@ -124,11 +136,15 @@ Each defect has a record in [`defects/issues/`](defects/issues) that is mirrored
 | DEF-2 | Safety controller missed bad steering commands | Fault injection | Verified on the board, steps under 5° not detected |
 | DEF-3 | Watchdog was disabled | Code review | Verified on the board |
 | DEF-4 | Steering check can release during a fault and hold steering on recovery | Bag analysis | **Open, redesign candidate** |
-| DEF-5 | `bm_wrap_pi` can loop forever on a very large angle | Unit test review, then MISRA 14.1 | Fixed in code, **not yet on the board** |
-| DEF-6 | Out-of-range config value converted to int32 (undefined behavior) | Fuzzing | Fixed in code, **not yet on the board** |
-| DEF-7 | Release build accepted the bench-only BENCH_RESET frame, which clears SAFE_STOP | Code review against the DBC | Fixed in code with a CI gate, **not yet on the board** |
+| DEF-5 | `bm_wrap_pi` can loop forever on a very large angle | Unit test review, then MISRA 14.1 | Fixed in code and in the final firmware, **trigger not exercised on the board** |
+| DEF-6 | Out-of-range config value converted to int32 (undefined behavior) | Fuzzing | Fixed in code and in the final firmware, **trigger not exercised on the board** |
+| DEF-7 | Release build accepted the bench-only BENCH_RESET frame, which clears SAFE_STOP | Code review against the DBC | Fixed in code with a CI gate, **release build not run on the board** |
+| DEF-35 | Persistent solver failure never led to SAFE_STOP | Requirement-based host test | Verified on the board (10 locations, 202-227 ms) |
+| DEF-36 | Board and PC float outputs differ by more than 0.01° | PIL replay | **Open**, FMA contraction is one cause |
+| DEF-37 | Solver-failure test hook adds two MISRA findings | Static analysis gate | **Open**, accepted into the baseline |
+| DEF-38 | Abnormal request before the start stays in the warm start | PIL replay | **Open**, cause estimated |
 
-Test setup defects are tracked separately: a stale bridge binary that ignored injection commands (11 laps voided) and lap plans that ran fewer laps than planned.
+Test setup defects are tracked separately: a stale bridge binary that ignored injection commands (11 laps voided), lap plans that ran fewer laps than planned, and a verdict script that under-reported one delay value in the final report (TI-22). IDs follow the internal defect list, which has 18 open items; they are summarized in [`docs/final_round.md`](docs/final_round.md#open-defects).
 
 ## CI gates
 
@@ -167,6 +183,8 @@ FUZZ_SECONDS=60 sut/test/fuzz/fuzz.sh   # needs clang with libFuzzer
 ```
 
 ## HILS results
+
+The figures in this section are from the earlier rounds (2026-11-05 to 09). Final-round figures are in [`verification/final_round/figures/`](verification/final_round/figures).
 
 ### Randomized blocks: QP fix
 48 laps. Paired difference in the M5 60-80 m window: -0.064 m (21 pairs, p=0.0001).
@@ -213,6 +231,8 @@ No upright object was visible at the M3 stop target from 8 m, so a road-surface 
 - Criteria and their change log are public in `docs/acceptance_criteria.md`. They were set after the first 7 laps, and some calculation scopes changed after failures were seen.
 - Suspect laps are flagged, not deleted.
 - Added metrics are defined before results are viewed and logged in `docs/decisions.md`.
+- In the final round the criteria and lap counts were fixed before the first official lap. Two definitions were changed once during the round and then reverted; the official verdict uses the original ones. What "fixed in advance" covers, and what it does not, is stated in [`docs/final_round.md`](docs/final_round.md#what-was-fixed-before-measuring).
+- Errors found in the final report after it was written are corrected in place and listed, not silently replaced.
 
 ![Invalid lap reasons](verification/figures/fig7_invalid.png)
 
@@ -220,21 +240,25 @@ In 30 of the 32 `ekf_diverged` laps, the lateral difference at the peak was unde
 
 ## Limitations
 
-- Simulator and one scenario only, with no vehicle test.
-- DEF-5 to DEF-7 are fixed in code but have not run on the board.
-- Coverage and mutation results come from the host, not the S32K312.
-- Measured execution times are not a WCET bound.
-- The final firmware has 2 of 30 planned normal laps.
+- Simulator and one scenario only, with no vehicle test. Perception, localization and path planning stay on the PC.
+- The firmware that ran is a bench build with the fault hook. A release-configuration build was not run on the board, and the triggers of DEF-5 to DEF-7 were not exercised there.
+- Measured execution times are not a WCET bound. One solve exceeded the 29 ms budget in a soak run, the firmware has no solve deadline handling, and an attempt to fit an extreme-value model to the solve times failed.
+- 18 defects are open, including the steering plausibility check on curves (DEF-4).
+- Reaction times are the time the safe state is entered. The safe stop holds the last steering angle, and what happens after it is not judged. Bus-off reaction time was not measured.
+- The 290 ms limit rests on an assumed lane width; with the measured width it is about 250-270 ms.
+- Collisions are not among the 16 requirements. Five of 210 valid laps contain collision messages near the ego vehicle, cause not determined.
+- Coverage and mutation results come from the host, not the S32K312. MC/DC is 47.1% in the safety controller file.
 - Safety functions share one MCU, so chip failure is not covered.
 - Steering steps under 5° and held commands are not detected. Slowly growing errors were not tested.
+- The process documents were written after development and had no independent review.
 
 ## Repository layout
 
 ```text
 sut/            MPC core, safety integration, firmware, ROS bridge, unit tests, fuzzing
-verification/   test plans, runner, results, figures, DBC and log export, release gate, metrics
+verification/   test plans, runner, results, figures, DBC and log export, release gate, metrics, final_round/ (raw records of the last round, mostly Korean)
 defects/        defect records (mirrored to GitHub Issues) and fix patches
-docs/           quality metrics, ASPICE mapping, acceptance criteria, analysis, decision log (partly Korean)
+docs/           final round summary, quality metrics, ASPICE mapping, acceptance criteria, analysis, decision log (partly Korean)
 ```
 
 Reproducing HILS needs the board, a MORAI license and the full ROS stack, which are not all included here.

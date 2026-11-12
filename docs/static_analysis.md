@@ -6,7 +6,7 @@ Scope: 11 files in `core/src`, `integ` and `third_party/kuuve_safety`, analyzed 
 
 > Rule titles are short paraphrases, not the MISRA text. cppcheck checks a subset of MISRA C:2012. This code was not written to MISRA, so no compliance is claimed.
 
-**400 findings: 383 MISRA C:2012 findings over 22 rules (Advisory 237, Required 146), and 17 other findings.** CI fails when a new finding appears that is not in `verification/static/baseline.json`.
+**402 findings: 385 MISRA C:2012 findings over 22 rules (Advisory 238, Required 147), and 17 other findings.** CI fails when a new finding appears that is not in `verification/static/baseline.json`.
 
 ## Real defect found and fixed
 
@@ -19,7 +19,7 @@ The safety layer (`integ/bmpc_safety.*`, `third_party/kuuve_safety/safety_ctrl.c
 | Rule | Count | Reason |
 |---|---:|---|
 | 15.5 | 14 | Early returns on invalid frames and in the plausibility state machine. Restructuring would change control flow in tested safety code for an advisory rule. |
-| 2.5 | 6 | Macros used by platform/s32k312/main.c and the tests, which are outside the analyzed scope, and bench-only macros (fault hook, BENCH_RESET ID) that the cppcheck addon reports even inside an inactive #if. |
+| 2.5 | 7 | Macros used by platform/s32k312/main.c and the tests, which are outside the analyzed scope, and bench-only macros (fault hook, BENCH_RESET ID) that the cppcheck addon reports even inside an inactive #if. |
 | 11.5 | 1 | CAN send callback receives its context as void *, the usual C callback pattern. |
 | 8.7 | 1 | bs_make_ctrl_frame has external linkage so the unit tests can check the CTRL_CMD encoding. |
 | bugprone-branch-clone | 1 | Empty else branch kept on purpose after if ... else if. |
@@ -40,13 +40,13 @@ The safety layer (`integ/bmpc_safety.*`, `third_party/kuuve_safety/safety_ctrl.c
 |---|---|---|---:|---|
 | 12.1 | Advisory | Make operator precedence explicit | 115 | Style. Not changed. |
 | 15.5 | Advisory | Single point of exit | 45 | Early returns on errors. Not changed. |
-| 15.6 | Required | Loop and if bodies must be compound statements | 44 | Single-line bodies without braces. Not changed. |
+| 15.6 | Required | Loop and if bodies must be compound statements | 45 | Single-line bodies without braces. Not changed. |
 | 12.3 | Advisory | Avoid the comma operator | 42 | Mostly several variables declared or advanced in one statement. Not changed. |
-| 10.4 | Required | Operands of the same essential type category | 36 | Mixed int and float arithmetic. Reviewed as part of the float build tests. Not changed. |
+| 10.4 | Required | Operands of the same essential type category | 36 | Read line by line on 2026-11-12: float compared with the integer constant 0 (26), unsigned values with positive integer constants (5), sizeof times an integer constant (3), float with the integer constant 1 (2). No value change. Not changed. |
 | 17.7 | Required | Use the return value of non-void functions | 21 | Ignored returns, mostly status of helpers. Not changed. |
-| 10.3 | Required | No assignment to a narrower or different essential type | 17 | Narrowing into fixed-width protocol fields. Not changed. |
-| 14.4 | Required | Controlling expressions must be essentially Boolean | 12 | Integer flags used as conditions. Not changed. |
-| 2.5 | Advisory | Unused macro | 11 | Not changed. |
+| 10.3 | Required | No assignment to a narrower or different essential type | 17 | Read line by line on 2026-11-12: integer constants 0 or 1 assigned to float variables (11), comparison results stored in int (5), one pointer advanced by an integer constant. No value change. Not changed. |
+| 14.4 | Required | Controlling expressions must be essentially Boolean | 12 | Read line by line on 2026-11-12: int flags or pointers used as conditions; the config fields involved are integer typed. Not changed. |
+| 2.5 | Advisory | Unused macro | 12 | Not changed. |
 | 20.5 | Advisory | Avoid #undef | 6 | X-macro pattern. Not changed. |
 | 8.7 | Advisory | External linkage used in one file only | 6 | Not changed. |
 | 20.7 | Required | Macro parameters in parentheses | 5 | X-macro parameters used as names, where parentheses are not possible. Not changed. |
@@ -57,7 +57,7 @@ The safety layer (`integ/bmpc_safety.*`, `third_party/kuuve_safety/safety_ctrl.c
 | 20.10 | Advisory | Avoid # and ## operators | 2 | X-macro pattern. Not changed. |
 | 13.3 | Advisory | Increment with no other side effect in the expression | 2 | Index updates such as free_idx[nf++]. Not changed. |
 | 5.9 | Advisory | Internal-linkage identifiers should be unique | 2 | Not changed. |
-| 2.2 | Required | No dead code | 1 | One store at bmpc_mpc.c:176. Not reviewed further. |
+| 2.2 | Required | No dead code | 1 | The "+ 0" in the index at bmpc_mpc.c:176, written to pair with "+ 1" on the next line. No effect on behaviour. Not changed. |
 | 15.4 | Advisory | At most one break per loop | 1 | Not changed. |
 | 11.5 | Advisory | Conversion from pointer to void | 1 | Callback context pointer. Not changed. |
 
@@ -67,7 +67,7 @@ The safety layer (`integ/bmpc_safety.*`, `third_party/kuuve_safety/safety_ctrl.c
 |---|---:|
 | `core/src/bmpc_mpc.c` | 96 |
 | `core/src/bmpc_qp.c` | 88 |
-| `core/src/bmpc_controller.c` | 37 |
+| `core/src/bmpc_controller.c` | 38 |
 | `core/src/bmpc_delay.c` | 28 |
 | `core/src/bmpc_protocol.c` | 26 |
 | `core/src/bmpc_config.c` | 20 |
@@ -75,8 +75,8 @@ The safety layer (`integ/bmpc_safety.*`, `third_party/kuuve_safety/safety_ctrl.c
 | `core/src/bmpc_app.c` | 19 |
 | `integ/bmpc_safety.c` | 12 |
 | `core/include/bmpc/bmpc_math.h` | 8 |
+| `integ/bmpc_safety.h` | 7 |
 | `core/src/bmpc_weights.c` | 6 |
-| `integ/bmpc_safety.h` | 6 |
 | `third_party/kuuve_safety/safety_ctrl.c` | 4 |
 | `core/include/bmpc/bmpc_mpc.h` | 3 |
 | `core/include/bmpc/bmpc_protocol.h` | 3 |
@@ -89,6 +89,6 @@ The safety layer (`integ/bmpc_safety.*`, `third_party/kuuve_safety/safety_ctrl.c
 ## Limits
 
 - The cppcheck MISRA addon covers only part of MISRA C:2012 and was run without the rule texts.
-- Most findings were reviewed by rule, not one by one. Only the non-MISRA findings and rules 14.1, 20.7 and 2.2 were looked at in the code.
+- The non-MISRA findings and rules 10.3, 10.4, 10.8, 14.1, 14.4, 20.7 and 2.2 were read line by line (2026-11-12, by the same party that did the analysis, not an independent reviewer). The other rules were reviewed by rule, not one by one.
 - Only the safety layer and `bm_wrap_pi` were changed. The MPC core keeps its findings, so it stays close to the build tested in HILS.
-- The changed firmware has been built but has not run on the board.
+- The final round (2026-11-11 to 12) ran on firmware built from this source, as a bench build with the fault hook. The solver-failure test hook added two findings (DEF-37), accepted into the baseline.

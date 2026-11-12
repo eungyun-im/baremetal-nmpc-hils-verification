@@ -16,6 +16,12 @@ extern "C" {
 
 typedef int64_t (*bmpc_now_fn)(void *ctx);
 
+#ifdef BMPC_TEST_HOOK
+/* 시험대 전용 (양산 빌드 제외, build.sh FAULT_HOOK=1): 0 이 아니면 MPC 풀이 결과를 BMPC_ERR_NUMERIC 으로 바꾼다.
+ * 실제 풀이 실패와 같은 경로(직전 조향·목표 속도 유지, warm start 버림)를 탄다. 통합 계층의 결함 훅이 쓴다 */
+extern volatile int bmpc_test_force_solve_fail;
+#endif
+
 typedef struct {
   bmpc_config_t cfg;
   int configured;

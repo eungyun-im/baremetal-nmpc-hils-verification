@@ -1,0 +1,5 @@
+condition,attempt,collision_msgs,collision_ego_msgs,note
+final3_sils_b2,5,2228,124,NPC 충돌 급증 시작. 다른 물체가 자차 중심 4.3 m 까지 (AC-08 5 m 기준 해당)
+final3_sils_b2,6,4281,0,NPC 끼리 충돌(최근접 29.5 m)
+final3_nmpc_b2,1,4262,0,NPC 끼리 충돌(최근접 18.4 m)
+final3_nmpc_b2,2,4514,0,NPC 끼리 충돌. 이 랩 뒤 17:18 시뮬레이터만 재시작(사용자 결정), 로그인 유지

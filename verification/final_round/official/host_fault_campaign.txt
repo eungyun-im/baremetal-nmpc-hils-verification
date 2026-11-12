@@ -1,0 +1,8 @@
+runs 10000
+  no fault          : 1000 runs, no false SAFE_STOP 1000
+  solve fail  d<=2  : 1210 runs, pass 1210 | d 3-5: 852 (report) | d>=6: 1938 runs, pass 1938 | SAFE_STOP 150..150 ms
+  command loss d<=2 : 1501 runs, pass 1501 | d 3-5: 999 (report) | d>=6: 2500 runs, pass 2500 | SAFE_STOP 150..150 ms
+  solve fail   boundary SAFE_STOP share: d=3 311/311, d=4 245/245, d=5 296/296
+  command loss boundary SAFE_STOP share: d=3 339/339, d=4 322/322, d=5 338/338
+RESULT: PASS (0 failures)
+campaign exit 0

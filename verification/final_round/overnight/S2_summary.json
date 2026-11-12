@@ -1,0 +1,38 @@
+{
+ "tries": 61,
+ "valid": 57,
+ "invalid": {
+  "stalled": 2,
+  "sim_gap": 2
+ },
+ "cycles": 218697,
+ "moving_h": 2.94,
+ "violations": {
+  "SAFE_STOP": 0,
+  "NORMAL_lt_100": 0,
+  "AC01_rtt_ge45": 0,
+  "AC02_solve_gt29": 1,
+  "AC03_link": 3,
+  "AC04_solver": 2,
+  "AC07_gap_gt10_5": 0,
+  "AC11_ctrl_ge50": 2
+ },
+ "rtt_max": 38.99296000599861,
+ "rtt_p99_max": 31.147170302574516,
+ "solve_max": 30.726,
+ "ctrl_max": 57.396823000000005,
+ "ctrl_over50_laps": [
+  [
+   "11",
+   51.0
+  ],
+  [
+   "37",
+   57.4
+  ]
+ ],
+ "sc_gap_max": 10.0,
+ "status_rx": 0,
+ "npc_flagged": 7,
+ "stack_used": 1756
+}
