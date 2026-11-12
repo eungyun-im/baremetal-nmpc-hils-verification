@@ -1576,6 +1576,23 @@ void BmpcBridge::InjectCallback(const std_msgs::String::ConstPtr &msg)
       inject_ctrl_pending_ = true;
     }
   }
+  else if (k == "solve_fail") {
+    // 시험대: MCU 의 MPC 풀이를 val ms 동안 실패(status 3)로 만든다 (FAULT_HOOK 빌드, 코어 BMPC_TEST_HOOK). SWR-45 시험
+    if (!safety_enabled_) {
+      ROS_WARN("[BMPC inject] solve_fail needs safety:=true and a FAULT_HOOK firmware");
+      return;
+    }
+    const uint16_t duration = (uint16_t)std::lround(std::max(0.0, std::min(val, 60000.0)));
+    bmpc_can_frame_t f;
+    std::memset(&f, 0, sizeof(f));
+    f.id = bmpc_bridge::vcan::ID_BENCH_RESET;
+    f.dlc = 6;
+    f.data[0] = 0xFA;
+    f.data[1] = 4;
+    f.data[4] = (uint8_t)(duration & 0xFF);
+    f.data[5] = (uint8_t)(duration >> 8);
+    link_->sendRaw(f);
+  }
   else if (k == "wdt_hang") {
     // 시험대: 펌웨어 메인 루프를 멈춰 워치독 복귀를 시험한다 (FAULT_HOOK + SWT 빌드)
     bmpc_can_frame_t f;

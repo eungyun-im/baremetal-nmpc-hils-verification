@@ -91,8 +91,8 @@ def report(found, versions, path):
         L.append("| %s | %s | %s | %d | %s |" % (r, c, t, n, d))
     L += ["", "## MISRA findings by file", "", "| File | Count |", "|---|---:|"] + ["| `%s` | %d |" % (f, n) for f, n in collections.Counter(x["file"] for x in misra).most_common()]
     L += ["", "## Limits", "", "- The cppcheck MISRA addon covers only part of MISRA C:2012 and was run without the rule texts.",
-          "- Most findings were reviewed by rule, not one by one. Only the non-MISRA findings and rules 14.1, 20.7 and 2.2 were looked at in the code.",
-          "- Only the safety layer and `bm_wrap_pi` were changed. The MPC core keeps its findings, so it stays close to the build tested in HILS.", "- The changed firmware has been built but has not run on the board.", ""]
+          "- The non-MISRA findings and rules 10.3, 10.4, 10.8, 14.1, 14.4, 20.7 and 2.2 were read line by line (2026-11-12, by the same party that did the analysis, not an independent reviewer). The other rules were reviewed by rule, not one by one.",
+          "- Only the safety layer and `bm_wrap_pi` were changed. The MPC core keeps its findings, so it stays close to the build tested in HILS.", "- The final round (2026-11-11 to 12) ran on firmware built from this source, as a bench build with the fault hook. The solver-failure test hook added two findings (DEF-37), accepted into the baseline.", ""]
     open(path, "w").write("\n".join(L))
 
 

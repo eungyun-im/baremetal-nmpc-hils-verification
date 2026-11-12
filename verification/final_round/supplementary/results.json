@@ -1,0 +1,240 @@
+{
+ "S4": {
+  "files": 119,
+  "requests": 63360,
+  "link_bad": 0,
+  "solve_max": 28.283,
+  "solve_p999": 23.423897000000178,
+  "solve_p99": 18.967819999999993,
+  "total_max": 28.392,
+  "rtt_max": 37.99,
+  "over_28_5": 0,
+  "over_29": 0,
+  "over_rows": [],
+  "worst": {
+   "file": "frames_1794079006.bin",
+   "k": 427,
+   "rel": -7,
+   "abn": 0,
+   "v": 1.04,
+   "status": 1,
+   "iters": 32,
+   "solve_ms": 28.283,
+   "total_ms": 28.392
+  },
+  "status": {
+   "0": 61633,
+   "1": 1719,
+   "3": 8
+  },
+  "near_max": 26.574,
+  "far_max": 28.283,
+  "statement": true
+ },
+ "S5": {
+  "0": {
+   "on_n": 4,
+   "on_mean": 0.0631703114273023,
+   "on_sd": 0.005872600452808439,
+   "on_laps": [
+    0.0619,
+    0.067,
+    0.0684,
+    0.0554
+   ],
+   "off_n": 6,
+   "off_mean": 0.07029565930188207,
+   "off_sd": 0.013673315699912111,
+   "old_on": [],
+   "statement": true
+  },
+  "50": {
+   "on_n": 4,
+   "on_mean": 0.06854623516197768,
+   "on_sd": 0.010355799139777307,
+   "on_laps": [
+    0.0717,
+    0.0545,
+    0.0687,
+    0.0793
+   ],
+   "off_n": 6,
+   "off_mean": 0.1117769102728058,
+   "off_sd": 0.03265695563736612,
+   "old_on": [],
+   "statement": true
+  },
+  "75": {
+   "on_n": 4,
+   "on_mean": 0.06972605747292093,
+   "on_sd": 0.009962811762877617,
+   "on_laps": [
+    0.0787,
+    0.0571,
+    0.0766,
+    0.0665
+   ],
+   "off_n": 6,
+   "off_mean": 0.1767772268619184,
+   "off_sd": 0.020792608784161316,
+   "old_on": [],
+   "statement": true
+  },
+  "100": {
+   "on_n": 4,
+   "on_mean": 0.0662916438008817,
+   "on_sd": 0.010324966384064079,
+   "on_laps": [
+    0.0546,
+    0.0609,
+    0.0726,
+    0.077
+   ],
+   "off_n": 6,
+   "off_mean": 0.207667048705061,
+   "off_sd": 0.11835801990215984,
+   "old_on": [
+    0.0802,
+    0.0703,
+    0.059,
+    0.0598
+   ],
+   "bridge_in_range": true
+  },
+  "attempts": 16,
+  "valid": 16,
+  "invalid": {}
+ },
+ "S6": {
+  "rows": [
+   {
+    "sr": "SR-01",
+    "fault": "blackout 0.35",
+    "valid": 4,
+    "passed": 4,
+    "react": [
+     186,
+     186,
+     186,
+     185
+    ],
+    "fails": [],
+    "official_valid": 3,
+    "official_react": [
+     185,
+     186,
+     186
+    ],
+    "combined_range": [
+     185,
+     186
+    ]
+   },
+   {
+    "sr": "SR-02",
+    "fault": "veh_loss 0.6",
+    "valid": 4,
+    "passed": 4,
+    "react": [
+     177,
+     176,
+     185,
+     174
+    ],
+    "fails": [],
+    "official_valid": 2,
+    "official_react": [
+     173,
+     181
+    ],
+    "combined_range": [
+     173,
+     185
+    ]
+   },
+   {
+    "sr": "SR-03",
+    "fault": "bus_off 0.5",
+    "valid": 4,
+    "passed": 4,
+    "react": [
+     832,
+     829,
+     830,
+     828
+    ],
+    "fails": [],
+    "official_valid": 2,
+    "official_react": [
+     830,
+     831
+    ],
+    "combined_range": [
+     828,
+     832
+    ]
+   },
+   {
+    "sr": "SR-05",
+    "fault": "10° 스텝",
+    "valid": 4,
+    "passed": 4,
+    "react": [],
+    "fails": [],
+    "official_valid": 2,
+    "official_react": [],
+    "combined_range": null
+   },
+   {
+    "sr": "SR-06",
+    "fault": "wdt_hang",
+    "valid": 4,
+    "passed": 4,
+    "react": [
+     199,
+     200,
+     199,
+     199
+    ],
+    "fails": [],
+    "official_valid": 2,
+    "official_react": [
+     198,
+     198
+    ],
+    "combined_range": [
+     198,
+     200
+    ]
+   },
+   {
+    "sr": "SR-07",
+    "fault": "req_crc 2",
+    "valid": 4,
+    "passed": 4,
+    "react": [],
+    "fails": [],
+    "official_valid": 2,
+    "official_react": [],
+    "combined_range": null
+   },
+   {
+    "sr": "SR-07",
+    "fault": "veh_crc 3",
+    "valid": 4,
+    "passed": 4,
+    "react": [],
+    "fails": [],
+    "official_valid": 2,
+    "official_react": [],
+    "combined_range": null
+   }
+  ],
+  "attempts": 29,
+  "valid": 28,
+  "statement": true,
+  "invalid": {
+   "no_inject": 1
+  }
+ }
+}

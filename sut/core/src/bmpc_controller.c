@@ -4,6 +4,10 @@
 
 #include "bmpc/bmpc_math.h"
 
+#ifdef BMPC_TEST_HOOK
+volatile int bmpc_test_force_solve_fail = 0;
+#endif
+
 static bmpc_real us_to_s(int64_t dt_us) { return (bmpc_real)dt_us * (bmpc_real)1e-6; }
 
 void bmpc_controller_init(bmpc_controller_t *c, const bmpc_config_t *cfg)
@@ -138,6 +142,9 @@ int bmpc_controller_step(bmpc_controller_t *c, const bmpc_request_t *req, bmpc_n
 
     t_solve0 = now_fn(now_ctx);
     status = bmpc_mpc_solve(cfg, &prob, c->warm_valid ? c->z_warm : NULL, &c->work, &c->result);
+#ifdef BMPC_TEST_HOOK
+    if (bmpc_test_force_solve_fail != 0) status = BMPC_ERR_NUMERIC;
+#endif
     t_solve1 = now_fn(now_ctx);
     resp->solve_us = (uint32_t)(t_solve1 - t_solve0);
     resp->iters = (uint8_t)(c->result.qp_iters > 255 ? 255 : c->result.qp_iters);

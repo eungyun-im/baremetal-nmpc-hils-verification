@@ -24,7 +24,7 @@
     "10.4": [
       "Required",
       "Operands of the same essential type category",
-      "Mixed int and float arithmetic. Reviewed as part of the float build tests. Not changed."
+      "Read line by line on 2026-11-12: float compared with the integer constant 0 (26), unsigned values with positive integer constants (5), sizeof times an integer constant (3), float with the integer constant 1 (2). No value change. Not changed."
     ],
     "17.7": [
       "Required",
@@ -34,12 +34,12 @@
     "10.3": [
       "Required",
       "No assignment to a narrower or different essential type",
-      "Narrowing into fixed-width protocol fields. Not changed."
+      "Read line by line on 2026-11-12: integer constants 0 or 1 assigned to float variables (11), comparison results stored in int (5), one pointer advanced by an integer constant. No value change. Not changed."
     ],
     "14.4": [
       "Required",
       "Controlling expressions must be essentially Boolean",
-      "Integer flags used as conditions. Not changed."
+      "Read line by line on 2026-11-12: int flags or pointers used as conditions; the config fields involved are integer typed. Not changed."
     ],
     "2.5": [
       "Advisory",
@@ -99,7 +99,7 @@
     "2.2": [
       "Required",
       "No dead code",
-      "One store at bmpc_mpc.c:176. Not reviewed further."
+      "The \"+ 0\" in the index at bmpc_mpc.c:176, written to pair with \"+ 1\" on the next line. No effect on behaviour. Not changed."
     ],
     "15.4": [
       "Advisory",

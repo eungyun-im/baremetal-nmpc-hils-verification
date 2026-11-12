@@ -1,0 +1,50 @@
+[
+ {
+  "group": 61,
+  "name": "supp_dose_d0_on",
+  "mode": "sils",
+  "laps": 4,
+  "args": [
+   "cmd_delay_s:=0.000",
+   "delay_comp:=true",
+   "dc_max_s:=0.25"
+  ],
+  "dnf_is_result": true
+ },
+ {
+  "group": 61,
+  "name": "supp_dose_d50_on",
+  "mode": "sils",
+  "laps": 4,
+  "args": [
+   "cmd_delay_s:=0.050",
+   "delay_comp:=true",
+   "dc_max_s:=0.25"
+  ],
+  "dnf_is_result": true
+ },
+ {
+  "group": 61,
+  "name": "supp_dose_d75_on",
+  "mode": "sils",
+  "laps": 4,
+  "args": [
+   "cmd_delay_s:=0.075",
+   "delay_comp:=true",
+   "dc_max_s:=0.25"
+  ],
+  "dnf_is_result": true
+ },
+ {
+  "group": 61,
+  "name": "supp_dose_d100_on",
+  "mode": "sils",
+  "laps": 4,
+  "args": [
+   "cmd_delay_s:=0.100",
+   "delay_comp:=true",
+   "dc_max_s:=0.25"
+  ],
+  "dnf_is_result": true
+ }
+]

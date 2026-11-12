@@ -147,11 +147,11 @@ static void bs_plaus_apply(bs_app_t *a, bmpc_response_t *r)
 #endif
 
 #ifdef BS_TEST_HOOK
-static void bs_hook_apply(bs_app_t *a, bmpc_response_t *r)
+/* 결함 시작·종료. 시간은 결함 명령을 받은 뒤 처음 처리하는 MPC 프레임부터 잰다 */
+static void bs_hook_update(bs_app_t *a, int64_t now)
 {
-  const int64_t now = a->hal.now_us(a->hal.ctx);
-  const float steer = (float)r->steer_cmd;
-  if (a->hook_pending) {
+  /* 3(메인 루프 멈춤)은 메인 루프가 대기 표시를 보고 처리하므로 여기서 지우지 않는다 */
+  if (a->hook_pending && (a->hook_kind != 3u)) {
     a->hook_pending = 0;
     a->hook_active = a->hook_kind;
     a->hook_until_us = now + (int64_t)a->hook_ms * 1000;
@@ -160,6 +160,12 @@ static void bs_hook_apply(bs_app_t *a, bmpc_response_t *r)
   if ((a->hook_active != BS_HOOK_OFF) && (now >= a->hook_until_us)) {
     a->hook_active = BS_HOOK_OFF;
   }
+}
+
+static void bs_hook_apply(bs_app_t *a, bmpc_response_t *r)
+{
+  const float steer = (float)r->steer_cmd;
+  bs_hook_update(a, a->hal.now_us(a->hal.ctx));
   if (a->hook_active == BS_HOOK_OFFSET) {
     r->steer_cmd = (bmpc_real)(steer + (float)a->hook_centideg * 0.01f / RAD2DEG_F);
   } else if (a->hook_active == BS_HOOK_HOLD) {
@@ -184,8 +190,11 @@ static int bs_can_send(void *ctx, const bmpc_can_frame_t *f)
     if (a->resp_mask == (uint8_t)((1u << BMPC_RESP_FRAMES) - 1u)) {
       bmpc_response_t r;
       a->resp_mask = 0;
-      /* 수신 오류·설정 전 응답에는 명령이 없다. 그 밖(풀이 실패 포함)은 controller 가 유지한 명령이 들어 있다 */
-      if ((bmpc_decode_response(a->resp, &r) == 0) && (r.status != BMPC_ERR_RX) && (r.status != BMPC_ERR_NOT_CONFIGURED)) {
+      /* 수신 오류·설정 전 응답에는 명령이 없다. 풀이 실패(INFEASIBLE, NUMERIC) 응답에는 controller 가 유지한 직전 명령이 있지만
+       * CTRL_CMD 로 만들지 않는다: 실패가 이어지면 명령 시간 초과(TSR-03, 200 ms)가 SAFE_STOP 으로 보내고,
+       * 한두 주기 실패는 안전 제어기가 직전 명령을 유지한다 (SWR-45, 2026-11-11) */
+      if ((bmpc_decode_response(a->resp, &r) == 0) && (r.status != BMPC_ERR_RX) && (r.status != BMPC_ERR_NOT_CONFIGURED) &&
+          (r.status != BMPC_ERR_INFEASIBLE) && (r.status != BMPC_ERR_NUMERIC)) {
 #ifdef BS_TEST_HOOK
         bs_hook_apply(a, &r);
 #endif
@@ -248,7 +257,15 @@ void bs_on_safety_frame(bs_app_t *a, const bmpc_can_frame_t *f, uint32_t now_ms)
   ++a->n_safety_rx;
 }
 
-void bs_on_mpc_frame(bs_app_t *a, const bmpc_can_frame_t *f) { bmpc_app_on_frame(&a->app, f); }
+void bs_on_mpc_frame(bs_app_t *a, const bmpc_can_frame_t *f)
+{
+#if defined(BS_TEST_HOOK) && defined(BMPC_TEST_HOOK)
+  /* 시험대 전용: 풀이 실패 결함이 켜져 있으면 이 프레임으로 끝나는 요청의 풀이를 실패로 만든다 */
+  bs_hook_update(a, a->hal.now_us(a->hal.ctx));
+  bmpc_test_force_solve_fail = (a->hook_active == BS_HOOK_SOLVE_FAIL) ? 1 : 0;
+#endif
+  bmpc_app_on_frame(&a->app, f);
+}
 
 int bs_feed_ctrl(bs_app_t *a, uint32_t now_ms)
 {

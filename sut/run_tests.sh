@@ -11,8 +11,12 @@ run() { name=$1; flags=$2; t=$3
 run def6 "-fsanitize=undefined,float-cast-overflow -fno-sanitize-recover=all" test_def6; run def6_float "-DBMPC_USE_FLOAT -fsanitize=undefined,float-cast-overflow -fno-sanitize-recover=all" test_def6
 run core ""  test_core; run core_more "" test_core_more; run qp_more "" test_qp_more
 run integ "-DBS_TEST_HOOK" test_integ; run integ_more "-DBS_TEST_HOOK" test_integ_more; run integ_plaus "-DBS_TEST_HOOK -DBS_PLAUS" test_integ_more; run app "" test_app
-run release_gate "" test_release_gate; run release_gate_bench -DBS_BENCH_RESET test_release_gate
+run release_gate "" test_release_gate; run solver_fail "-DBS_TEST_HOOK -DBS_PLAUS -DBMPC_TEST_HOOK -DBMPC_USE_FLOAT" test_solver_fail; run release_gate_bench -DBS_BENCH_RESET test_release_gate
 for fl in "" "-DBMPC_USE_FLOAT"; do n=wrap_pi${fl:+_float}; if gcc -std=gnu99 -O2 -w $fl -Icore/include test/test_wrap_pi.c -lm -o $B/$n; then printf '%-28s %s\n' $n "$($B/$n 2>&1 | tail -1)"; else echo "$n BUILD FAILED"; rc=1; fi; done
 if gcc -std=c99 -O2 -w -Ithird_party/kuuve_safety test/test_safety_reqs.c third_party/kuuve_safety/safety_ctrl.c -lm -o $B/safety_reqs; then
   printf '%-28s %s\n' safety_reqs "$($B/safety_reqs 2>&1 | tail -1)"; else echo "safety_reqs BUILD FAILED"; rc=1; fi
+# 결함 주입 캠페인 (SR-01, SR-04): 무작위 조건 2,000회. 판정 불합격이 하나라도 있으면 실패
+if gcc -std=gnu99 -D_POSIX_C_SOURCE=200809L -O2 -w -DBS_TEST_HOOK -DBS_PLAUS -DBMPC_TEST_HOOK -DBMPC_USE_FLOAT $INC test/test_fault_campaign.c $SRC -lm -o $B/fault_campaign; then
+  if out=$($B/fault_campaign 2000 $B/fault_campaign.csv 2>&1); then printf '%-28s %s\n' fault_campaign "$(echo "$out" | tail -1)"; else printf '%-28s %s\n' fault_campaign "$(echo "$out" | tail -1)"; rc=1; fi
+else echo "fault_campaign BUILD FAILED"; rc=1; fi
 exit $rc

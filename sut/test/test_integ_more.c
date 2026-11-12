@@ -334,15 +334,16 @@ static void test_intercept(void)
   send_group(&g_a, fr);
   CHECK(g_a.ctrl_pending == 0, "bad CRC gives no command");
 
-  /* 수신 오류·설정 전 응답에는 명령이 없다. 풀이 실패에는 유지한 명령이 있다 */
+  /* 수신 오류·설정 전 응답에는 명령이 없다. 풀이 실패 응답도 명령으로 넘기지 않는다(SWR-45, 2026-11-11):
+   * 이어지면 안전 제어기의 명령 시간 초과가 SAFE_STOP 으로 보낸다 (test_solver_fail.c) */
   {
     static const struct {
       uint8_t status;
       int pending;
     } cases[] = {{BMPC_OK, 1},
                  {BMPC_ERR_MAXITER, 1},
-                 {BMPC_ERR_INFEASIBLE, 1},
-                 {BMPC_ERR_NUMERIC, 1},
+                 {BMPC_ERR_INFEASIBLE, 0},
+                 {BMPC_ERR_NUMERIC, 0},
                  {BMPC_ERR_RX, 0},
                  {BMPC_ERR_NOT_CONFIGURED, 0}};
     for (i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
@@ -415,7 +416,7 @@ static void test_request_paths(void)
   for (i = 0; i < BMPC_REQ_FRAMES; ++i) bs_on_mpc_frame(&g_a, &fr[i]);
   CHECK(g_a.app.stats.rx_errors == 1u && g_a.ctrl_pending == 0, "RX error gives no command");
 
-  /* NaN 경로 계수: 풀지 않지만 직전 조향을 CTRL_CMD 로 유지한다 */
+  /* NaN 경로 계수: 풀지 않고 status 3 으로 답한다. 새 CTRL_CMD 는 없고, 안전 제어기는 마지막으로 받은 명령(직전 조향)을 유지한다 */
   held = (float)g_a.app.ctrl.post.prev_steer_cmd;
   CHECK(fabsf(held) > 0.01f, "steering built up (%.3f rad)", (double)held);
   make_req(&req, seq++, 1.0, 8.0);
@@ -423,8 +424,8 @@ static void test_request_paths(void)
   bmpc_encode_request(&req, fr);
   for (i = 0; i < BMPC_REQ_FRAMES; ++i) bs_on_mpc_frame(&g_a, &fr[i]);
   CHECK(g_a.app.ctrl.errors == 1u, "numeric error counted");
-  CHECK(g_a.ctrl_pending == 1, "held command still goes to the safety controller");
-  CHECK(fabsf(i16(&g_a.ctrl[0]) * 0.01f - held * 57.29578f) < 0.011f, "held steer %.3f deg vs %.3f deg", i16(&g_a.ctrl[0]) * 0.01,
+  CHECK(g_a.ctrl_pending == 0, "no new command after a numeric error (SWR-45)");
+  CHECK(fabsf(i16(&g_a.ctrl[0]) * 0.01f - held * 57.29578f) < 0.011f, "last command kept: %.3f deg vs %.3f deg", i16(&g_a.ctrl[0]) * 0.01,
         (double)held * 57.29578);
 }
 

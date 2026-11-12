@@ -22,6 +22,9 @@ LABELS = {
     "found-by:fault-injection": ("5319e7", "HILS fault injection"),
     "found-by:bag-analysis": ("5319e7", "Analysis of recorded runs"),
     "found-by:log-review": ("5319e7", "Test log review"),
+    "found-by:requirement-test": ("5319e7", "Requirement-based host test"),
+    "found-by:pil-replay": ("5319e7", "Processor-in-the-loop replay of recorded requests"),
+    "found-by:static-analysis": ("5319e7", "Static analysis gate"),
 }
 
 
